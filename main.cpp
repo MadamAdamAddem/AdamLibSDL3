@@ -1,11 +1,35 @@
 #include <iostream>
-#include <SDL3/SDL.h>
+#include "src/include/Window.h"
+#include "src/include/Rendering.h"
+#include "src/include/Input.h"
+#include <SDL3_image/SDL_image.h>
 
 
 
 
-int main()
+int main(int argc, char** argv)
 {
-  std::cout << "Hello World" << std::endl;
+  using namespace AdamLib;
+
+  SDL_Init(SDL_INIT_VIDEO);
+  GameWindow& ref = GameWindow::getInstance();
+  Renderer& renderer = Renderer::getInstance();
+
+  Renderable image("assets/square144.png");
+
+  SDL_Event e;
+  bool keep_going = true;
+
+  while(Input::processEvents())
+  {
+
+
+    renderer.render_all();
+
+  }
+
+
+
+  std::cout << SDL_GetError() << std::endl;
   return 0;
 }
