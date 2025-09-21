@@ -6,7 +6,6 @@
 namespace AdamLib
 {
 
-class Renderer;
 
 class GameWindow
 {
@@ -18,8 +17,6 @@ class GameWindow
 
   std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> m_window;
   int m_width, m_height;
-
-  Renderer& game_renderer;
 
 public:
   static GameWindow& getInstance();

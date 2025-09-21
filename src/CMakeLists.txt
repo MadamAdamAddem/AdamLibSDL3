@@ -7,18 +7,22 @@ add_library(adam_lib STATIC
   Resources/manager.cpp
   Resources/Textures/textures.cpp
   Input/inputs.cpp
+  Node/node.cpp
 )
 
 add_library(adam::lib ALIAS adam_lib)
 
 target_include_directories(adam_lib
     PUBLIC
-     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/box2d
+
 )
 
 target_link_libraries(adam_lib
   PUBLIC
     SDL3::SDL3
+    Box2D
     $<IF:$<TARGET_EXISTS:SDL3_image::SDL3_image-shared>,
        SDL3_image::SDL3_image-shared, SDL3_image::SDL3_image-static>
     $<IF:$<TARGET_EXISTS:SDL3_ttf::SDL3_ttf-shared>,
