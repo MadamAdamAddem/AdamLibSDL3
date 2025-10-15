@@ -1,4 +1,4 @@
-#include "../include/ResManager.h"
+#include <AdamLib/Resources/ResManager.hpp>
 
 using namespace AdamLib;
 

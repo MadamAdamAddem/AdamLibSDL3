@@ -1,3 +1,7 @@
 /.vscode
 /build
 /extern
+/.clangd
+/engine?.code-workspace
+/compile_flags.txt
+/.gitignore

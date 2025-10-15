@@ -7,23 +7,9 @@ find_package(SDL3 CONFIG REQUIRED)
 find_package(SDL3_image CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
 
-add_library(Box2D STATIC IMPORTED)
-set_target_properties(Box2D PROPERTIES 
-   IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/extern/libbox2d.a")
 
+#fix this shit eventually
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(src)
-
-add_executable(binary main.cpp)
-
-target_link_libraries(binary
-  PRIVATE
-    adam::lib
-    SDL3::SDL3
-    Box2D
-
-    $<IF:$<TARGET_EXISTS:SDL3_image::SDL3_image-shared>,
-       SDL3_image::SDL3_image-shared, SDL3_image::SDL3_image-static>
-    $<IF:$<TARGET_EXISTS:SDL3_ttf::SDL3_ttf-shared>,
-       SDL3_ttf::SDL3_ttf-shared, SDL3_ttf::SDL3_ttf-static>
-)
+add_subdirectory(examples)
