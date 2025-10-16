@@ -6,7 +6,7 @@ using namespace AdamLib;
 
 
 
-SpriteNode::SpriteNode(const std::string& _name, const std::string& _img_path, NodeInstanceController* _controller, Node* _parent) : 
+SpriteNode::SpriteNode(const std::string& _name, const std::string& _img_path, SpriteNodeInstanceController* _controller, Node* _parent) : 
   Node(_name, _controller, _parent), 
   texture_(_img_path)
 {
@@ -51,7 +51,7 @@ SpriteNode::~SpriteNode()
 
 //
 
-SpriteTemplate::SpriteTemplate(const std::string& _name, const std::string& _img_path, NodeInstanceController* _controller) : 
+SpriteTemplate::SpriteTemplate(const std::string& _name, const std::string& _img_path, SpriteNodeInstanceController* _controller) : 
   NodeTemplate(_name, _controller), 
   path_to_sprite_(_img_path)
 {
@@ -60,7 +60,7 @@ SpriteTemplate::SpriteTemplate(const std::string& _name, const std::string& _img
 
 Node* SpriteTemplate::createInstance()
 {  
-  SpriteNode* self = new SpriteNode(name_, path_to_sprite_, controller_);
+  SpriteNode* self = new SpriteNode(name_, path_to_sprite_, (SpriteNodeInstanceController*)controller_);
 
   for(auto& c : children_)
   {
@@ -77,4 +77,4 @@ Node* SpriteTemplate::createInstance()
 
 
 
-SpriteNode* SpriteNodeInstanceController::self() {return (SpriteNode*)(subject_);}
+SpriteNode* SpriteNodeInstanceController::self() {return (SpriteNode*)(self_);}

@@ -14,7 +14,7 @@ class SpriteNode : public Node
   TextureInstance texture_;
 public:
 
-  SpriteNode(const std::string& _name, const std::string& _img_path, NodeInstanceController* _controller, Node* _parent = nullptr);
+  SpriteNode(const std::string& _name, const std::string& _img_path, SpriteNodeInstanceController* _controller, Node* _parent = nullptr);
   virtual ~SpriteNode();
 
   void changeTexture(const std::string& _img_path, ScaleMode _scale_mode = NEAREST);
@@ -34,7 +34,7 @@ public:
 class SpriteTemplate : public NodeTemplate
 {
 public:
-  SpriteTemplate(const std::string& _name, const std::string& _img_path, NodeInstanceController* _controller = nullptr);
+  SpriteTemplate(const std::string& _name, const std::string& _img_path, SpriteNodeInstanceController* _controller = nullptr);
   std::string path_to_sprite_;
 
   virtual Node* createInstance() override;

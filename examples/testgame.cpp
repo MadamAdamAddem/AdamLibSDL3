@@ -1,3 +1,4 @@
+#include "AdamLib/Collision/CollisionShapes.hpp"
 #include "test.hpp"
 #include <AdamLib/Nodes/Node.hpp>
 #include <AdamLib/Nodes/SpriteNode.hpp>
@@ -8,17 +9,19 @@
 
 #include <AdamLib/Collision/CollisionDetector.hpp>
 
+#include <iostream>
+
 
 using namespace AdamLib;
-#define SPEED 500;
 
 CollisionDetector detector({1280, 720});
 
 
-struct Player : SpriteNodeInstanceController
+struct Player : CollisionNodeInstanceController
 {
   Vec2 velocity{0,0};
 
+  float speed_{500};
 
   void process(double _dT) override
   {
@@ -33,6 +36,7 @@ struct Player : SpriteNodeInstanceController
     RegisterKeyChangeConnection(KEY_LEFT, onMovementInputChange);
     RegisterKeyChangeConnection(KEY_DOWN, onMovementInputChange);
     RegisterKeyChangeConnection(KEY_RIGHT, onMovementInputChange);
+    RegisterKeyChangeConnection(KEY_LSHIFT, onMovementInputChange);
     RegisterKeyChangeConnection(KEY_0, printTree);
 
 
@@ -43,16 +47,25 @@ struct Player : SpriteNodeInstanceController
 
   }
 
+  void onCollisionWith(CollisionNode* _collider) override
+  {
+    std::cout << "Player Collision With: " << _collider->name_ << std::endl;
+  }
+
   void onMovementInputChange()
   {
+    if(Input::keystate(KEY_LSHIFT))
+      speed_ = 50;
+    else
+      speed_ = 500;
+
     velocity.y = (Input::keystate(KEY_DOWN) - Input::keystate(KEY_UP));
     velocity.x = (Input::keystate(KEY_RIGHT) - Input::keystate(KEY_LEFT));
 
-    velocity = Vec2::normalize(velocity) * SPEED;
+    velocity = Vec2::normalize(velocity) * speed_;
   }
 
   
-
 
 };
 
@@ -63,32 +76,26 @@ void loadgame()
   Node& roo = Node::getRoot();
 
 
-  SpriteTemplate player_node("Player_Sprite", "assets/square144.png", new Player());
-  player_node.default_pos_ = {000,000};
-  player_node.layer_ = 2;
-
-  SpriteTemplate box_node("Box_Node", "assets/square144.png");
-  box_node.default_pos_ = {500,500};
-  box_node.layer_ = 2;
 
 
+  CollisionTemplate player_collision("Player_Collision", new CollisionRectangle({0,0}, {144,144}), new Player());
 
-  CollisionTemplate player_collision("Player_Collision", new CollisionRectangle({0,0}, {144,144}));
+  CollisionTemplate box_collision("Box_Collision", new CollisionRectangle({500,500}, {144,144}));
 
-  CollisionTemplate box_collision("Box_Collision", new CollisionRectangle({0,0}, {144,144}));
-
-
-  player_node.registerChildTemplate(&player_collision);
-  box_node.registerChildTemplate(&box_collision);
+  CollisionTemplate ray_collision("Ray_Collision", new CollisionRay({500, 200}, {1,1}, 50));
 
 
+  Node* playernode = player_collision.createInstance();
+  Node* boxnode = box_collision.createInstance();
+  Node* raynode = ray_collision.createInstance();
+
+  roo.addChild(playernode);
+  roo.addChild(boxnode);
+  roo.addChild(raynode);
 
 
-  roo.addChild(player_node.createInstance());
-  roo.addChild(box_node.createInstance());
-
-
-  detector.addCollisionNode((CollisionNode*)roo.getMyChild("Player_Sprite/Player_Collision"));
-  detector.addCollisionNode((CollisionNode*)roo.getMyChild("Box_Node/Box_Collision"));
+  detector.addCollisionNode((CollisionNode*)playernode);
+  detector.addCollisionNode((CollisionNode*)boxnode);
+  detector.addCollisionNode((CollisionNode*)raynode);
 
 }

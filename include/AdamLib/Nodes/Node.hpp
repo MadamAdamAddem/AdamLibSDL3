@@ -156,7 +156,7 @@ struct NodeInstanceController
 
   void registerConnection(ConnectionController _connection);
 
-  Node* subject_;
+  Node* self_;
   std::vector<ConnectionController> connections_;
   
   virtual void process(double _dT);

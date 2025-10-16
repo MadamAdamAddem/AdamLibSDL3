@@ -23,7 +23,7 @@ Node::Node(const std::string& _name, NodeInstanceController* _controller, Node* 
 {
   if(controller_)
   {
-    controller_->subject_ = this;
+    controller_->self_ = this;
     controller_->ready();
   }
 }
@@ -296,9 +296,6 @@ Node* NodeTemplate::createInstance()
 
   self->setPos(default_pos_);
 
-  if(controller_)
-    self->controller_->ready();
-
   return self;
 }
 
@@ -323,5 +320,5 @@ void NodeInstanceController::ready(){}
 
 void NodeInstanceController::onFree(){}
 
-Node* NodeInstanceController::self() {return subject_;}
+Node* NodeInstanceController::self() {return self_;}
 

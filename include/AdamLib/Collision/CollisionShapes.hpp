@@ -18,8 +18,26 @@ struct AABB
 };
 
 
+class CollisionRectangle;
+class CollisionCapsule;
+class CollisionCircle;
+
+//class CollisionRay;
+//class CollisionPolygon;
+
 struct CollisionShape
 {
+  enum ShapeType
+  {
+    INVALID,
+    RECTANGLE,
+    CIRCLE,
+    CAPSULE,
+    RAY,
+    POLYGON
+  };
+  ShapeType shapetype_{INVALID};
+
   #ifdef DRAW_COLLISION
   Renderer::SetOfPoints points_to_render_;
   virtual void updatePos(Vec2 _move) = 0;
@@ -28,6 +46,11 @@ struct CollisionShape
     Renderer::removeSetPoints(&points_to_render_);
   }
   #endif
+
+
+  // virtual bool determineCollisionWith(CollisionRay* _rect) = 0;
+  // virtual bool determineCollisionWith(CollisionPolygon* _rect) = 0;
+
 
   AABB aabb_;
 };
@@ -40,8 +63,9 @@ struct CollisionRectangle : public CollisionShape
   CollisionRectangle(const Vec2 _offset, const Vec2 _width_height);
 
   #ifdef DRAW_COLLISION
-  virtual void updatePos(Vec2 _move) override;
+  virtual void updatePos(Vec2 _pos) override;
   #endif
+
 
   Vec2 offset_; //center of rectangle, relative to collisionnode
   Vec2 width_height_;
@@ -49,11 +73,13 @@ struct CollisionRectangle : public CollisionShape
 
 struct CollisionCircle : public CollisionShape
 {
-  CollisionCircle(Vec2 _offset, float _r);
+  CollisionCircle(const Vec2 _offset, const float _r);
 
   #ifdef DRAW_COLLISION
-  virtual void updatePos(Vec2 _move) override;
+  virtual void updatePos(Vec2 _pos) override;
   #endif
+
+
 
   Vec2 offset_; //center of circle, relative to collisionnode
   float r_;
@@ -61,11 +87,13 @@ struct CollisionCircle : public CollisionShape
 
 struct CollisionCapsule : public CollisionShape
 {
-  CollisionCapsule(Vec2& _a_offset, Vec2& _b_offset, float _r);
+  CollisionCapsule(const Vec2 _a_offset, const Vec2 _b_offset, const float _r);
 
   #ifdef DRAW_COLLISION
-  virtual void updatePos(Vec2 _move) override;
+  virtual void updatePos(Vec2 _pos) override;
   #endif
+
+
 
   Vec2 a_offset_; //circle a center, relative to collisionnode
   Vec2 b_offset_; //circle b center, relative to collisionnode
@@ -73,18 +101,26 @@ struct CollisionCapsule : public CollisionShape
 };
 
 
-//To Do: Finish this shit
 
-// struct CollisionRay : public CollisionShape
-// {
-//   CollisionRay();
-//   AABB createAABB() override;
+struct CollisionRay : public CollisionShape
+{
+  CollisionRay(const Vec2 _offset, const Vec2 _direction, const float _len);
+
+  #ifdef DRAW_COLLISION
+  virtual void updatePos(Vec2 _pos) override;
+  #endif
   
-//   Vec2 offset_; //offset relative to collisionnode
-//   Vec2 direction_; //normalized
-//   float len_;
-// };
+  Vec2 offset_; //offset relative to collisionnode
+  Vec2 direction_; //normalized
 
+  Vec2 p1;
+  Vec2 p2;
+  
+  float len_;
+};
+
+
+//To Do: Implement
 // struct CollisionPolygon : public CollisionShape
 // {
 //   CollisionPolygon();

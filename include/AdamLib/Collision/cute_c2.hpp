@@ -286,12 +286,15 @@ typedef struct c2Manifold
 CUTE_C2_API int c2CircletoCircle(c2Circle A, c2Circle B);
 CUTE_C2_API int c2CircletoAABB(c2Circle A, c2AABB B);
 CUTE_C2_API int c2CircletoCapsule(c2Circle A, c2Capsule B);
+CUTE_C2_API int c2CircletoPoly(c2Circle A, const c2Poly* B, const c2x* bx);
+
 CUTE_C2_API int c2AABBtoAABB(c2AABB A, c2AABB B);
 CUTE_C2_API int c2AABBtoCapsule(c2AABB A, c2Capsule B);
-CUTE_C2_API int c2CapsuletoCapsule(c2Capsule A, c2Capsule B);
-CUTE_C2_API int c2CircletoPoly(c2Circle A, const c2Poly* B, const c2x* bx);
 CUTE_C2_API int c2AABBtoPoly(c2AABB A, const c2Poly* B, const c2x* bx);
+
+CUTE_C2_API int c2CapsuletoCapsule(c2Capsule A, c2Capsule B);
 CUTE_C2_API int c2CapsuletoPoly(c2Capsule A, const c2Poly* B, const c2x* bx);
+
 CUTE_C2_API int c2PolytoPoly(const c2Poly* A, const c2x* ax, const c2Poly* B, const c2x* bx);
 
 // ray operations
@@ -311,13 +314,17 @@ CUTE_C2_API int c2RaytoPoly(c2Ray A, const c2Poly* B, const c2x* bx_ptr, c2Rayca
 CUTE_C2_API void c2CircletoCircleManifold(c2Circle A, c2Circle B, c2Manifold* m);
 CUTE_C2_API void c2CircletoAABBManifold(c2Circle A, c2AABB B, c2Manifold* m);
 CUTE_C2_API void c2CircletoCapsuleManifold(c2Circle A, c2Capsule B, c2Manifold* m);
+CUTE_C2_API void c2CircletoPolyManifold(c2Circle A, const c2Poly* B, const c2x* bx, c2Manifold* m);
+
 CUTE_C2_API void c2AABBtoAABBManifold(c2AABB A, c2AABB B, c2Manifold* m);
 CUTE_C2_API void c2AABBtoCapsuleManifold(c2AABB A, c2Capsule B, c2Manifold* m);
-CUTE_C2_API void c2CapsuletoCapsuleManifold(c2Capsule A, c2Capsule B, c2Manifold* m);
-CUTE_C2_API void c2CircletoPolyManifold(c2Circle A, const c2Poly* B, const c2x* bx, c2Manifold* m);
 CUTE_C2_API void c2AABBtoPolyManifold(c2AABB A, const c2Poly* B, const c2x* bx, c2Manifold* m);
+
+CUTE_C2_API void c2CapsuletoCapsuleManifold(c2Capsule A, c2Capsule B, c2Manifold* m);
 CUTE_C2_API void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx, c2Manifold* m);
+
 CUTE_C2_API void c2PolytoPolyManifold(const c2Poly* A, const c2x* ax, const c2Poly* B, const c2x* bx, c2Manifold* m);
+
 
 typedef enum
 {
@@ -435,7 +442,6 @@ CUTE_C2_API int c2CastRay(c2Ray A, const void* B, const c2x* bx, C2_TYPE typeB, 
 #endif
 
 // adjust these primitives as seen fit
-#include <string.h> // memcpy
 #include <math.h>
 #define c2Sin(radians) sinf(radians)
 #define c2Cos(radians) cosf(radians)
@@ -530,6 +536,7 @@ C2_INLINE void c2BBVerts(c2v* out, c2AABB* bb)
 #endif
 
 #ifdef CUTE_C2_IMPLEMENTATION
+#include <string.h> // memcpy
 #ifndef CUTE_C2_IMPLEMENTATION_ONCE
 #define CUTE_C2_IMPLEMENTATION_ONCE
 
