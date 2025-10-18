@@ -1,6 +1,6 @@
 #include <AdamLib/Collision/CollisionShapes.hpp>
 #include <algorithm>
-
+\
 using namespace AdamLib;
 
 
@@ -8,7 +8,7 @@ using namespace AdamLib;
 
 /*----- Rectangle -----*/
 
-CollisionRectangle::CollisionRectangle(const Vec2 _offset, const Vec2 _width_height) : offset_(_offset), width_height_(_width_height)
+CollisionRectangle::CollisionRectangle(const Vec2 _offset, const double _width, const double _height) : offset_(_offset), width_height_({_width, _height})
 {
   aabb_ = {{offset_.x - width_height_.x/2, offset_.y + width_height_.y/2},{offset_.x + width_height_.x/2, offset_.y - width_height_.y/2}};
   shapetype_ = RECTANGLE;
@@ -41,7 +41,6 @@ void CollisionRectangle::updatePos(Vec2 _pos)
 #endif
 
 
-
 /*----- Rectangle -----*/
 
 
@@ -69,6 +68,7 @@ void CollisionCircle::updatePos(Vec2 _pos)
 
 }
 #endif
+
 
 /*----- Circle -----*/
 
@@ -105,17 +105,19 @@ void CollisionCapsule::updatePos(Vec2 _pos)
 }
 #endif
 
+
+
 /*----- Capsule -----*/
 
 
-//To Do: Implement Ray and Polygon
+//To Do: Implement Polygon
 
 /*----- Ray -----*/
 
 CollisionRay::CollisionRay(const Vec2 _offset, const Vec2 _direction, const float _len) :
-offset_(_offset), direction_(_direction), len_(_len)
+offset_(_offset), direction_normalized_(_direction), len_(_len)
 {
-  Vec2 endpoint = {direction_.x * len_ + offset_.x, direction_.y * len_ + offset_.y};
+  Vec2 endpoint = {direction_normalized_.x * len_ + offset_.x, direction_normalized_.y * len_ + offset_.y};
   p1 = offset_;
   p2 = endpoint;
 

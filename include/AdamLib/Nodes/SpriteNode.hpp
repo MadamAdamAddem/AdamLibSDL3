@@ -5,16 +5,21 @@
 namespace AdamLib
 {
 
-class SpriteTemplate;
+class SpriteNodeTemplate;
 class SpriteNodeInstanceController;
 
+//! Node derivative that contains a texture instance
+/*!
+    Holds a texture instance provided by img path, with some management functions.
+*/
 class SpriteNode : public Node
 {
-  friend class SpriteTemplate;
+protected:
+  friend class SpriteNodeTemplate;
   TextureInstance texture_;
 public:
 
-  SpriteNode(const std::string& _name, const std::string& _img_path, SpriteNodeInstanceController* _controller, Node* _parent = nullptr);
+  SpriteNode(const std::string& _name, const std::string& _img_path, NodeInstanceController* _controller = nullptr, Node* _parent = nullptr);
   virtual ~SpriteNode();
 
   void changeTexture(const std::string& _img_path, ScaleMode _scale_mode = NEAREST);
@@ -26,18 +31,18 @@ public:
   virtual void setPos(const Vec2& _pos) override;
   virtual void movePos(const Vec2& _move) override;
 
-
-  void setClip();
 };
 
 
-class SpriteTemplate : public NodeTemplate
+class SpriteNodeTemplate : public NodeTemplate
 {
-public:
-  SpriteTemplate(const std::string& _name, const std::string& _img_path, SpriteNodeInstanceController* _controller = nullptr);
-  std::string path_to_sprite_;
+protected:
+  Node* createNode(NodeInstanceController* _controller) override; 
 
-  virtual Node* createInstance() override;
+
+public:
+  SpriteNodeTemplate(const std::string& _name, const std::string& _img_path, std::function<NodeInstanceController*()> _controller_factory = nullptr);
+  std::string path_to_sprite_;
 
   Vec2 default_stretch_{1,1};
   unsigned layer_{1};

@@ -17,6 +17,7 @@ using namespace AdamLib;
 CollisionDetector detector({1280, 720});
 
 
+
 struct Player : CollisionNodeInstanceController
 {
   Vec2 velocity{0,0};
@@ -30,27 +31,20 @@ struct Player : CollisionNodeInstanceController
     detector.queryTreeForCollisions();
   }
 
-  void ready() override
+  void onReady() override
   {
     RegisterKeyChangeConnection(KEY_UP,  onMovementInputChange);
     RegisterKeyChangeConnection(KEY_LEFT, onMovementInputChange);
     RegisterKeyChangeConnection(KEY_DOWN, onMovementInputChange);
     RegisterKeyChangeConnection(KEY_RIGHT, onMovementInputChange);
     RegisterKeyChangeConnection(KEY_LSHIFT, onMovementInputChange);
-    RegisterKeyChangeConnection(KEY_0, printTree);
-
-
   }
 
-  void printTree()
-  {
-
+  void onCollisionWith(CollisionNode* _n) override
+  { 
+    std::cout << "Collision Yippie!" << std::endl;
   }
 
-  void onCollisionWith(CollisionNode* _collider) override
-  {
-    std::cout << "Player Collision With: " << _collider->name_ << std::endl;
-  }
 
   void onMovementInputChange()
   {
@@ -64,7 +58,6 @@ struct Player : CollisionNodeInstanceController
 
     velocity = Vec2::normalize(velocity) * speed_;
   }
-
   
 
 };
@@ -76,16 +69,17 @@ void loadgame()
   Node& roo = Node::getRoot();
 
 
+  SpriteNodeTemplate player_sprite("Player_Sprite", "assets/square144.png", Controller(Player));
+  CollisionNodeTemplate player_collision("Player_Collision", Rectangle(Vec2(0,0), 144, 144));
+
+  player_sprite.registerChildTemplate(&player_collision);
+
+  CollisionNodeTemplate box_collision("Box_Collision", Rectangle(Vec2(500,500), 144, 144));
+
+  CollisionNodeTemplate ray_collision("Ray_Collision", Ray(Vec2(500, 200), Vec2(1,1), 50));
 
 
-  CollisionTemplate player_collision("Player_Collision", new CollisionRectangle({0,0}, {144,144}), new Player());
-
-  CollisionTemplate box_collision("Box_Collision", new CollisionRectangle({500,500}, {144,144}));
-
-  CollisionTemplate ray_collision("Ray_Collision", new CollisionRay({500, 200}, {1,1}, 50));
-
-
-  Node* playernode = player_collision.createInstance();
+  Node* playernode = player_sprite.createInstance();
   Node* boxnode = box_collision.createInstance();
   Node* raynode = ray_collision.createInstance();
 
@@ -94,7 +88,6 @@ void loadgame()
   roo.addChild(raynode);
 
 
-  detector.addCollisionNode((CollisionNode*)playernode);
   detector.addCollisionNode((CollisionNode*)boxnode);
   detector.addCollisionNode((CollisionNode*)raynode);
 

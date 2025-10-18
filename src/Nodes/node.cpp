@@ -24,7 +24,7 @@ Node::Node(const std::string& _name, NodeInstanceController* _controller, Node* 
   if(controller_)
   {
     controller_->self_ = this;
-    controller_->ready();
+    controller_->onReady();
   }
 }
 
@@ -49,13 +49,13 @@ void Node::process(double _dT)
 
 bool Node::addChild(Node* _node)
 {
-  if(node_map.contains(_node->name_) || _node == this || _node == parent_)
+  if(node_map_.contains(_node->name_) || _node == this || _node == parent_)
     return false;
 
 
   _node->parent_ = this;
 
-  auto& child = node_map[_node->name_];
+  auto& child = node_map_[_node->name_];
 
   child.child_.reset(_node);
 
@@ -88,39 +88,35 @@ bool Node::immediatelyObliterateMyChild(const std::string& _local_path)
 
   
   tbd_child->immediatelyKillAllChildren();
-  node_map.erase(tbd_child->name_);  
+  node_map_.erase(tbd_child->name_);  
   return true;
 }
 
-bool Node::immediatelyKillAllChildren()
+void Node::immediatelyKillAllChildren()
 {
-  if(node_map.empty())
-    return false;
-
-  for(auto& c : node_map)
+  for(auto& c : node_map_)
   {
     c.second.child_->immediatelyKillAllChildren();
   }
 
-  node_map.clear();
-  return true;
+  node_map_.clear();
 }
 
-void Node::printChildren(int depth)
+void Node::printChildren(int _depth)
 {
   std::cout << "\n";
-  if(node_map.empty())
+  if(node_map_.empty())
     return;
 
 
 
-  for(auto& kid : node_map)
+  for(auto& kid : node_map_)
   {
-    for(int i=0; i<depth; ++i)
+    for(int i=0; i<_depth; ++i)
       std::cout << "    ";
     
     std::cout << kid.first << "/";
-    kid.second.child_->printChildren(depth + 1);
+    kid.second.child_->printChildren(_depth + 1);
   }
 
   std::cout << std::endl;
@@ -133,7 +129,7 @@ void Node::updatePath()
   else
     global_path_ = parent_->global_path_ + "/" + name_;
 
-  for(auto& c : node_map)
+  for(auto& c : node_map_)
   {
     c.second.child_->updatePath();
   }
@@ -152,8 +148,8 @@ Node* Node::getMyChild(const std::string& _local_path)
   if(i > _local_path.size())
     i = _local_path.size();
 
-  if(node_map.contains(first))
-    return node_map[first].child_->getMyChild(_local_path.substr(i));
+  if(node_map_.contains(first))
+    return node_map_[first].child_->getMyChild(_local_path.substr(i));
   else
     return nullptr;
 
@@ -162,9 +158,9 @@ Node* Node::getMyChild(const std::string& _local_path)
 
 bool Node::changeName(const std::string& _name)
 {
-  auto node_extract = parent_->node_map.extract(name_);
+  auto node_extract = parent_->node_map_.extract(name_);
   node_extract.key() = _name;
-  parent_->node_map.insert(std::move(node_extract));
+  parent_->node_map_.insert(std::move(node_extract));
   name_ = _name;
 
   return true;
@@ -172,11 +168,11 @@ bool Node::changeName(const std::string& _name)
 
 Node* Node::disconnectChild(const std::string& _child_name)
 {
-  if(!node_map.contains(_child_name))
+  if(!node_map_.contains(_child_name))
     return nullptr;
 
-  Node* child = node_map[_child_name].child_.release();
-  node_map.erase(_child_name);
+  Node* child = node_map_[_child_name].child_.release();
+  node_map_.erase(_child_name);
   return child;
 }
 
@@ -256,27 +252,33 @@ void Node::freeQueued()
   to_be_freed.clear();
 }
 
+
+
+
+
+
 //-----NodeTemplate:
 
-NodeTemplate::NodeTemplate(const std::string& _name, NodeInstanceController* _controller) : 
-  name_(_name),
-  controller_(_controller)
+NodeTemplate::NodeTemplate(const std::string& _default_name, std::function<NodeInstanceController*()> _controllerfact) :
+  default_name_(_default_name), controller_factory_(_controllerfact)
 {
+  
 }
+
 
 bool NodeTemplate::registerChildTemplate(NodeTemplate* _child)
 {
   if(!_child)
     return false;
 
-  if(_child->name_.find('/') != std::string::npos)
+  if(_child->default_name_.find('/') != std::string::npos)
     return false;
 
   //Performance shouldn't matter since template creation will only happen once at beginning
   //technically O(n^2) but wtv
   for(auto& c : children_)
   {
-    if(c->name_ == _child->name_)
+    if(c->default_name_ == _child->default_name_)
       return false;
   }
 
@@ -285,9 +287,11 @@ bool NodeTemplate::registerChildTemplate(NodeTemplate* _child)
   return true;
 }
 
+
 Node* NodeTemplate::createInstance()
 {
-  Node* self = new Node(name_, controller_);
+  NodeInstanceController* controller = (controller_factory_ ? controller_factory_() : nullptr);
+  Node* self = createNode(controller);
   
   for(auto& c : children_)
   {
@@ -295,12 +299,17 @@ Node* NodeTemplate::createInstance()
   }
 
   self->setPos(default_pos_);
-
   return self;
 }
 
-//----NodeInstanceController:
+Node* NodeTemplate::createNode(NodeInstanceController* _controller)
+{
+  return new Node(default_name_, _controller);
+}
 
+
+
+//----NodeInstanceController:
 NodeInstanceController::~NodeInstanceController()
 {
   for(auto& c : connections_)
@@ -314,11 +323,13 @@ void NodeInstanceController::registerConnection(ConnectionController _controller
   connections_.push_back(_controller);
 }
 
-void NodeInstanceController::process(double _dT){}
-
-void NodeInstanceController::ready(){}
-
-void NodeInstanceController::onFree(){}
-
 Node* NodeInstanceController::self() {return self_;}
 
+
+void NodeInstanceController::process(double _dT) {}
+
+void NodeInstanceController::onReady() {}
+
+void NodeInstanceController::onFree() {}
+
+//---- No Controller

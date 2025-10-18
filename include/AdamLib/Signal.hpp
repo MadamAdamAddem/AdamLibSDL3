@@ -31,6 +31,9 @@ struct ConnectionController
   }
 };
 
+
+
+
 template<typename... Arguments>
 class Signal : public SignalGeneric
 {

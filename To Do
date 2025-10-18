@@ -1,0 +1,9 @@
+Use more smart pointers for cases where allocation and deallocation are manual.
+
+Resolve template/controller problem.
+
+Privatize unneccesarrily exposed methods, members, and contructors. 
+
+Remove singletons (window and root node).
+
+Remove C Style casts.

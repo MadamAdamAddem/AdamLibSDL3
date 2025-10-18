@@ -1,0 +1,3 @@
+Root node is a singleton.
+Node name is simply the name with no preceeding or ending /'.
+Node global path is the path to the node starting with '/root' and ending with '/<name>'.

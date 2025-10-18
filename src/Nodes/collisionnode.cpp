@@ -10,6 +10,7 @@
 #include <SDL3/SDL_render.h>
 
 #include <iostream>
+#include <assert.h>
 
 
 using namespace AdamLib;
@@ -28,9 +29,10 @@ c2Circle circleConversion(CollisionCircle* _circle)
 }
 
 
-CollisionNode::CollisionNode(const std::string& _name, CollisionShape* _shape, CollisionNodeInstanceController* _controller,  Node* _parent) : 
+CollisionNode::CollisionNode(const std::string& _name, CollisionShape* _shape, NodeInstanceController* _controller,  Node* _parent) : 
   Node(_name, _controller, _parent), shape_(_shape)
 {
+  assert(_shape != nullptr);
 
 }
 
@@ -146,27 +148,17 @@ void CollisionNode::movePos(const Vec2& _move)
 
 /*----- CollisionTemplate -----*/
 
-CollisionTemplate::CollisionTemplate(const std::string& _name, CollisionShape* _shape, CollisionNodeInstanceController* _controller) : 
-  NodeTemplate(_name, _controller), 
-  shape_(_shape)
+CollisionNodeTemplate::CollisionNodeTemplate(const std::string& _name, std::function<CollisionShape*()> _shape_factory, std::function<NodeInstanceController*()> _controller_factory) : 
+  NodeTemplate(_name, _controller_factory), 
+  shape_factory_(_shape_factory)
 {
 
 }
 
-Node* CollisionTemplate::createInstance()
-{  
-  CollisionNode* self = new CollisionNode(name_, shape_, (CollisionNodeInstanceController*)controller_);
-
-  for(auto& c : children_)
-  {
-    self->addChild(c->createInstance());
-  }
-
-  self->setPos(default_pos_);
-
-  return self;
+Node* CollisionNodeTemplate::createNode(NodeInstanceController* _controller)
+{
+  return new CollisionNode(default_name_, shape_factory_(), _controller);
 }
-
 /*----- CollisionTemplate -----*/
 
 /*----- CollisionNodeInstanceController -----*/

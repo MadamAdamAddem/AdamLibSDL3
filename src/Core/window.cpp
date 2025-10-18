@@ -8,12 +8,12 @@ using namespace AdamLib;
 
 
 GameWindow::GameWindow(const std::string& title, int _w = 1280, int _h = 720) : 
-  m_width(_w), m_height(_h),
-  m_window(SDL_CreateWindow(title.c_str(), _w, _h, SDL_WINDOW_RESIZABLE), SDL_DestroyWindow)
+  width_(_w), height_(_h),
+  window_(SDL_CreateWindow(title.c_str(), _w, _h, SDL_WINDOW_RESIZABLE), SDL_DestroyWindow)
 {
 
-  Renderer::initRenderer(m_window.get());
-  if(m_window == nullptr)
+  Renderer::initRenderer(window_.get());
+  if(window_ == nullptr)
   {
     std::cout << SDL_GetError() << std::endl;
     exit(1);
@@ -30,9 +30,9 @@ GameWindow& GameWindow::getInstance()
 
 void GameWindow::resizeWindow(int _w, int _h)
 {
-  m_width = _w; m_height = _h;
+  width_ = _w; height_ = _h;
 
-  SDL_SetWindowSize(m_window.get(), _w, _h);
+  SDL_SetWindowSize(window_.get(), _w, _h);
 }
 /*----------------------------------------------------------------------------------*/
 

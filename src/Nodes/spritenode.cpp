@@ -6,7 +6,7 @@ using namespace AdamLib;
 
 
 
-SpriteNode::SpriteNode(const std::string& _name, const std::string& _img_path, SpriteNodeInstanceController* _controller, Node* _parent) : 
+SpriteNode::SpriteNode(const std::string& _name, const std::string& _img_path, NodeInstanceController* _controller, Node* _parent) : 
   Node(_name, _controller, _parent), 
   texture_(_img_path)
 {
@@ -51,27 +51,21 @@ SpriteNode::~SpriteNode()
 
 //
 
-SpriteTemplate::SpriteTemplate(const std::string& _name, const std::string& _img_path, SpriteNodeInstanceController* _controller) : 
-  NodeTemplate(_name, _controller), 
+SpriteNodeTemplate::SpriteNodeTemplate(const std::string& _name, const std::string& _img_path, std::function<NodeInstanceController*()> _controller_factory) : 
+  NodeTemplate(_name, _controller_factory), 
   path_to_sprite_(_img_path)
 {
 
 }
 
-Node* SpriteTemplate::createInstance()
-{  
-  SpriteNode* self = new SpriteNode(name_, path_to_sprite_, (SpriteNodeInstanceController*)controller_);
 
-  for(auto& c : children_)
-  {
-    self->addChild(c->createInstance());
-  }
+Node* SpriteNodeTemplate::createNode(NodeInstanceController* _controller)
+{
+  SpriteNode* instance = new SpriteNode(default_name_, path_to_sprite_, _controller);
+  instance->texture_.changeLayer(layer_);
+  instance->setTextureStretch(default_stretch_);
 
-  self->setPos(default_pos_);
-  self->texture_.changeLayer(layer_);
-  self->setTextureStretch(default_stretch_);
-
-  return self;
+  return instance;
 }
 
 

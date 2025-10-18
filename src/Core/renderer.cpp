@@ -1,10 +1,10 @@
-#include <AdamLib/Defines.hpp>
 #include <AdamLib/Core/Rendering.hpp>
 #include <AdamLib/Resources/Texture.hpp>
 
 #include <SDL3/SDL_blendmode.h>
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_render.h>
+#include <cassert>
 #include <list>
 
 using namespace AdamLib;
@@ -12,7 +12,10 @@ using namespace AdamLib;
 
 std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> renderer{nullptr, SDL_DestroyRenderer};
 std::list<TextureInstance*> render_order;
+
+#ifdef DRAW_COLLISION
 std::list<Renderer::SetOfPoints*> sets_of_points;
+#endif
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
@@ -66,6 +69,8 @@ void Renderer::render_all()
 
 void Renderer::addTexture(TextureInstance* res)
 {
+  assert(res != nullptr);
+  
   for(auto it = render_order.begin(); it != render_order.end(); ++it)
   {
     if(*it == res)
@@ -92,6 +97,7 @@ SDL_Renderer* Renderer::getRenderer()
   return renderer.get();
 }
 
+#ifdef  DRAW_COLLISION
 void Renderer::addSetPoints(Renderer::SetOfPoints* _sop)
 {
   sets_of_points.push_back(_sop);
@@ -101,4 +107,4 @@ void Renderer::removeSetPoints(Renderer::SetOfPoints* _sop)
 {
   sets_of_points.remove(_sop);
 }
-
+#endif
