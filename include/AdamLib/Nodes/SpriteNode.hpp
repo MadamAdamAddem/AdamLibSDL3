@@ -45,6 +45,7 @@ public:
   std::string path_to_sprite_;
 
   Vec2 default_stretch_{1,1};
+  bool hidden_{false};
   unsigned layer_{1};
 
 };

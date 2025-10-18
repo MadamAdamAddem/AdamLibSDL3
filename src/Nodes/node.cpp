@@ -30,8 +30,6 @@ Node::Node(const std::string& _name, NodeInstanceController* _controller, Node* 
 
 Node::~Node()
 {
-  if(controller_)
-    controller_->onFree();
     
   propogate_process_.clear();
 }
@@ -240,6 +238,20 @@ void Node::queueFree(Node* tbd)
 
 void Node::freeQueued() 
 {
+
+  //run this first to ensure any onFree overrides have full access to all nodes
+  //probably should be optimized
+  for (auto& n : to_be_freed) 
+  {
+    Node* tmp = Node::getNode(n);
+    if(tmp)
+    {
+      if(tmp->controller_)
+        tmp->controller_->onFree();
+    }
+
+  }
+
   for (auto& n : to_be_freed) 
   {
     Node* tmp = Node::getNode(n);

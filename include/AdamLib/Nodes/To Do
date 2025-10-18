@@ -17,7 +17,7 @@ Node:
 
   -Optimize node-path system
 
-  -Make functions relating to path/name more cohesive (move towards local path)
+  -Make functions relating to path/name more cohesive (move towards path instead of name)
 
 SpriteNode:
   -Figure out how to make image clips easier

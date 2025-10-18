@@ -62,7 +62,8 @@ SpriteNodeTemplate::SpriteNodeTemplate(const std::string& _name, const std::stri
 Node* SpriteNodeTemplate::createNode(NodeInstanceController* _controller)
 {
   SpriteNode* instance = new SpriteNode(default_name_, path_to_sprite_, _controller);
-  instance->texture_.changeLayer(layer_);
+  instance->setLayer(layer_);
+  instance->setVisibility(!hidden_);
   instance->setTextureStretch(default_stretch_);
 
   return instance;

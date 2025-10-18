@@ -20,12 +20,12 @@ c2AABB aabbConversion(AABB _aabb)
   Vec2& bl = _aabb.bottom_left_;
   Vec2& tr = _aabb.top_right_;
 
-  return {{(float)bl.x, (float)-bl.y}, {(float)tr.x, (float)-tr.y}};
+  return {{static_cast<float>(bl.x), static_cast<float>(-bl.y)}, {static_cast<float>(tr.x), static_cast<float>(-tr.y)}};
 }
 
 c2Circle circleConversion(CollisionCircle* _circle)
 {
-  return {{(float)_circle->offset_.x, (float)-_circle->offset_.y}, _circle->r_};
+  return {{static_cast<float>(_circle->offset_.x), static_cast<float>(-_circle->offset_.y)}, _circle->r_};
 }
 
 
@@ -59,14 +59,14 @@ void CollisionNode::determineCollisionWith(CollisionNode* _collider)
 
     case ShapeType::CIRCLE:
     {
-      CollisionCircle* collcircle = (CollisionCircle*)_collider->shape_.get();
+      CollisionCircle* collcircle = static_cast<CollisionCircle*>(_collider->shape_.get());
       isCollision = determineCollisionWithCircle(collcircle->offset_ + collpos, collcircle->r_);
     }
       break;
 
     case ShapeType::CAPSULE:
     {
-      CollisionCapsule* collcap = (CollisionCapsule*)_collider->shape_.get();
+      CollisionCapsule* collcap = static_cast<CollisionCapsule*>(_collider->shape_.get());
       isCollision = determineCollisionWithCapsule(collcap->a_offset_ + collpos, collcap->b_offset_ + collpos, collcap->r_);
     }
       break;
@@ -104,7 +104,7 @@ bool CollisionNode::determineCollisionWithRect(AABB _rect)
 
     case ShapeType::CIRCLE:
     {
-      c2Circle mycirc = circleConversion((CollisionCircle*)shape_.get());
+      c2Circle mycirc = circleConversion(static_cast<CollisionCircle*>(shape_.get()));
       mycirc.p.x += pos_.x;
       mycirc.p.y -= pos_.y;
       return c2CircletoAABB(mycirc, colliderrect);

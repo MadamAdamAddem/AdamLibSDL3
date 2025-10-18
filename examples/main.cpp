@@ -1,6 +1,3 @@
-#include <iostream>
-#include <SDL3_image/SDL_image.h>
-
 #include <AdamLib/Core/Window.hpp>
 #include <AdamLib/Core/Rendering.hpp>
 #include <AdamLib/Input.hpp>
@@ -26,12 +23,6 @@ void limitFPS()
 }
 
 using namespace AdamLib;
-
-void print(double, Node*)
-{
-  static int i = 0;
-  std::cout << "Print: " << ++i << std::endl;
-}
 
 int main(int argc, char** argv)
 {

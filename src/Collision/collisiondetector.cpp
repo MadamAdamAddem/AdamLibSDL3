@@ -35,7 +35,7 @@ void CollisionDetector::queryTreeForCollisions()
     std::vector<void*> colliders = tree_.query(node);
     for(void* collider : colliders)
     {
-      node->determineCollisionWith((CollisionNode*)collider);
+      node->determineCollisionWith(static_cast<CollisionNode*>(collider));
     }
   }
 }
