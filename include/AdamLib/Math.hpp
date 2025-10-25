@@ -57,34 +57,42 @@ struct Vec2i
 
 };
 
-// struct Vec2li
-// {
-//   long x;
-//   long y;
-// };
+struct Vec2li
+{
+  long x;
+  long y;
+};
 
-// struct Vec4
-// {
-//   double x;
-//   double y;
-//   double w;
-//   double h;
-// };
+struct Vec4
+{
+  double x;
+  double y;
+  double w;
+  double h;
+};
 
-// struct Vec4i
-// {
-//   int x;
-//   int y;
-//   int w;
-//   int h;
-// };
+struct Vec4f
+{
+  float x;
+  float y;
+  float w;
+  float h;
+};
 
-// struct Vec4li
-// {
-//   long x;
-//   long y;
-//   long w;
-//   long h;
-// };
+struct Vec4i
+{
+  int x;
+  int y;
+  int w;
+  int h;
+};
+
+struct Vec4li
+{
+  long x;
+  long y;
+  long w;
+  long h;
+};
 
 }

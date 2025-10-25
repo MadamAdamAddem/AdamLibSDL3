@@ -5,6 +5,7 @@ project(adam_lib)
 add_library(adam_lib SHARED
   Core/renderer.cpp
   Core/window.cpp
+  Core/AdamLib.cpp
 
   Nodes/node.cpp
   Nodes/spritenode.cpp
@@ -13,6 +14,7 @@ add_library(adam_lib SHARED
   Collision/AABB.cpp
   Collision/collisiondetector.cpp
   Collision/collisionshapes.cpp
+  Collision/cute_c2_impl.cpp
 
   Resources/manager.cpp
   Resources/textures.cpp

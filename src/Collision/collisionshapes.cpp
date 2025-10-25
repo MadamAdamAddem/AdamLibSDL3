@@ -1,9 +1,30 @@
 #include <AdamLib/Collision/CollisionShapes.hpp>
+#include "../Core/RendererInternal.hpp"
 #include <algorithm>
-\
+#include <memory>
+
 using namespace AdamLib;
 
 
+CollisionShape::CollisionShape() : points_to_render_(std::make_unique<Renderer::SetOfPoints>())
+{
+
+}
+
+CollisionShape::~CollisionShape()
+{
+  Renderer::removeSetPoints(points_to_render_.get());
+}
+
+void CollisionShape::setVisibility(bool doRendering)
+{
+  if(doRendering && !renderCollision)
+    Renderer::addSetPoints(points_to_render_.get());
+  else
+    Renderer::removeSetPoints(points_to_render_.get());
+
+  renderCollision = doRendering;
+}
 
 
 /*----- Rectangle -----*/
@@ -13,32 +34,28 @@ CollisionRectangle::CollisionRectangle(const Vec2 _offset, const double _width, 
   aabb_ = {{offset_.x - width_height_.x/2, offset_.y + width_height_.y/2},{offset_.x + width_height_.x/2, offset_.y - width_height_.y/2}};
   shapetype_ = RECTANGLE;
 
-  #ifdef DRAW_COLLISION
-  points_to_render_.points_.reserve(5);
-  points_to_render_.points_.resize(5);
-
-  Renderer::addSetPoints(&points_to_render_);
-  #endif
+  points_to_render_->points_.resize(5);
 }
 
-#ifdef DRAW_COLLISION
 void CollisionRectangle::updatePos(Vec2 _pos)
 {
-  points_to_render_.points_[0].x = aabb_.bottom_left_.x + _pos.x;
-  points_to_render_.points_[0].y = aabb_.bottom_left_.y + _pos.y;
+  if(!renderCollision)
+    return;
 
-  points_to_render_.points_[1].x = aabb_.bottom_left_.x + _pos.x;
-  points_to_render_.points_[1].y = aabb_.top_right_.y + _pos.y;
+  points_to_render_->points_[0].x = aabb_.bottom_left_.x + _pos.x;
+  points_to_render_->points_[0].y = aabb_.bottom_left_.y + _pos.y;
 
-  points_to_render_.points_[2].x = aabb_.top_right_.x + _pos.x;
-  points_to_render_.points_[2].y = aabb_.top_right_.y + _pos.y;
+  points_to_render_->points_[1].x = aabb_.bottom_left_.x + _pos.x;
+  points_to_render_->points_[1].y = aabb_.top_right_.y + _pos.y;
 
-  points_to_render_.points_[3].x = aabb_.top_right_.x + _pos.x;
-  points_to_render_.points_[3].y = aabb_.bottom_left_.y + _pos.y;
+  points_to_render_->points_[2].x = aabb_.top_right_.x + _pos.x;
+  points_to_render_->points_[2].y = aabb_.top_right_.y + _pos.y;
 
-  points_to_render_.points_[4] = points_to_render_.points_[0];
+  points_to_render_->points_[3].x = aabb_.top_right_.x + _pos.x;
+  points_to_render_->points_[3].y = aabb_.bottom_left_.y + _pos.y;
+
+  points_to_render_->points_[4] = points_to_render_->points_[0];
 }
-#endif
 
 
 /*----- Rectangle -----*/
@@ -53,21 +70,16 @@ CollisionCircle::CollisionCircle(const Vec2 _offset, const float _r) : offset_(_
   aabb_ = {{offset_.x - r_, offset_.y + r_}, {offset_.x + r_, offset_.y - r_}};
   shapetype_ = CIRCLE;
 
-  #ifdef DRAW_COLLISION
-  points_to_render_.points_.reserve(9);
-  points_to_render_.points_.resize(9);
 
-  Renderer::addSetPoints(&points_to_render_);
-  #endif
+  points_to_render_->points_.resize(9);
+
 }
 
 
-#ifdef DRAW_COLLISION
 void CollisionCircle::updatePos(Vec2 _pos)
 {
 
 }
-#endif
 
 
 /*----- Circle -----*/
@@ -89,21 +101,15 @@ CollisionCapsule::CollisionCapsule(const Vec2 _a_offset, const Vec2 _b_offset, f
   aabb_ = {{leftmost, downmost}, {rightmost, upmost}};
   shapetype_ = CAPSULE;
 
-  #ifdef DRAW_COLLISION
-  points_to_render_.points_.reserve(11);
-  points_to_render_.points_.resize(11);
-
-  Renderer::addSetPoints(&points_to_render_);
-  #endif
+  points_to_render_->points_.resize(11);
 }
 
-#ifdef DRAW_COLLISION
 void CollisionCapsule::updatePos(Vec2 _pos)
 {
-  
+  if(!renderCollision)
+    return;
 
 }
-#endif
 
 
 
@@ -131,25 +137,21 @@ offset_(_offset), direction_normalized_(_direction), len_(_len)
   aabb_ = {{leftmost, downmost}, {rightmost, upmost}};
   shapetype_ = RAY;
 
-  #ifdef DRAW_COLLISION
-  points_to_render_.points_.reserve(2);
-  points_to_render_.points_.resize(2);
-
-  Renderer::addSetPoints(&points_to_render_);
-  #endif
+  points_to_render_->points_.resize(2);
 }
 
-#ifdef DRAW_COLLISION
 void CollisionRay::updatePos(Vec2 _pos)
 {
-  points_to_render_.points_[0].x = p1.x + _pos.x;
-  points_to_render_.points_[0].y = p1.y + _pos.y;
+  if(!renderCollision)
+    return;
 
-  points_to_render_.points_[1].x = p2.x + _pos.x;
-  points_to_render_.points_[1].y = p2.y + _pos.y;
+  points_to_render_->points_[0].x = p1.x + _pos.x;
+  points_to_render_->points_[0].y = p1.y + _pos.y;
+
+  points_to_render_->points_[1].x = p2.x + _pos.x;
+  points_to_render_->points_[1].y = p2.y + _pos.y;
 
 }
-#endif
 
 
 /*----- Ray -----*/

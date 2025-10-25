@@ -1,9 +1,9 @@
 #pragma once
-#include "AdamLib/Math.hpp"
+#include <AdamLib/Math.hpp>
 #include <AdamLib/Resources/Resource.hpp>
-#include <SDL3/SDL_blendmode.h>
+
+
 #include <memory>
-#include <SDL3/SDL_render.h>
 
 
 namespace AdamLib
@@ -11,14 +11,33 @@ namespace AdamLib
 
 enum ScaleMode
 {
-  NEAREST = SDL_SCALEMODE_NEAREST,
-  LINEAR_SCALING = SDL_SCALEMODE_LINEAR
+  NEAREST = 0u,
+  LINEAR_SCALING = 1u
 };
 
+enum FlipMode
+{
+  NO_FLIP = 0u,
+  FLIP_HORIZONTAL = 1u,
+  FLIP_VERTICAL = 2u
+};
+
+enum BlendMode
+{
+  BLEND_NONE = 0u,
+  BLEND_BLEND = 1u,
+  BLEND_ADD = 2u,
+  BLEND_MOD = 4u,
+  BEND_MUL = 8u,
+  BLEND_BLEND_PREMULTIPLIED = 16u,
+  BLEND_ADD_PREMULTIPLIED = 32u
+};
+
+class Texture;
 
 class TextureResource : public Resource
 {
-  std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture_; 
+  std::unique_ptr<Texture> texture_; 
 
 public:
 
@@ -27,7 +46,7 @@ public:
 
   virtual void createResource(const std::string& _path) override;
 
-  inline virtual SDL_Texture* getTexture() {return texture_.get();}
+  inline Texture* getTexture() {return texture_.get();}
 
 
 };
@@ -40,22 +59,30 @@ struct TextureInstance
 
   bool hidden_;
 
-  SDL_FRect image_clip_{0,0,0,0};
-  SDL_FRect render_destination_{0,0,0,0};
+  Vec4f image_clip_{0,0,0,0};
+  Vec4f render_destination_{0,0,0,0};
 
-  SDL_FRect scale_{1,1};
+  Vec2 scale_{1,1};
   double angle_{0};
 
-  SDL_FlipMode flip_{SDL_FLIP_NONE};
-  SDL_Color colormod_{255,255,255,255};
+  FlipMode flip_{NO_FLIP};
+  Vec4 colormod_{255,255,255,255};
 
-  SDL_BlendMode blend_mode_{SDL_BLENDMODE_NONE};
+  BlendMode blend_mode_{BLEND_NONE};
 
 
   void changeTexture(const std::string& _path, ScaleMode _scale_mode = NEAREST);
   void changeLayer(unsigned _layer);
   void setScale(Vec2 _scale);
   void setRenderCenter(Vec2 _center);
+
+  /* Implement
+  void setBlendMode(BlendMode);
+  void setColorMod(SDL_Color);
+  void setFlip(FlipMode);
+  void setScaleMode(ScaleMode);
+  */
+
 
   void removeFromRenderer();
   void addToRenderer();

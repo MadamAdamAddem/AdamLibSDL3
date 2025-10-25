@@ -1,6 +1,9 @@
 #include <AdamLib/Core/Rendering.hpp>
 #include <AdamLib/Resources/Texture.hpp>
 
+#include "RendererInternal.hpp"
+#include "../Resources/ResourcesInternal.hpp"
+
 #include <SDL3/SDL_blendmode.h>
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_render.h>
@@ -43,14 +46,17 @@ void Renderer::render_all()
     if(obj->m_texture == nullptr)
       continue;
 
-    SDL_Texture* texture = obj->m_texture->getTexture();
+    SDL_Texture* texture = obj->m_texture->getTexture()->texture_;
     
 
-    SDL_SetTextureColorMod(texture, obj->colormod_.r, obj->colormod_.g, obj->colormod_.b);
-    SDL_SetTextureAlphaMod(texture, obj->colormod_.a);
+    SDL_SetTextureColorMod(texture, obj->colormod_.x, obj->colormod_.y, obj->colormod_.w);
+    SDL_SetTextureAlphaMod(texture, obj->colormod_.h);
     SDL_SetTextureBlendMode(texture, obj->blend_mode_);
 
-    SDL_RenderTextureRotated(renderer.get(), texture, &obj->image_clip_, &obj->render_destination_, obj->angle_, NULL, obj->flip_);
+    SDL_FRect clip = std::bit_cast<SDL_FRect>(obj->image_clip_);
+    SDL_FRect destination = std::bit_cast<SDL_FRect>(obj->render_destination_);
+
+    SDL_RenderTextureRotated(renderer.get(), texture, &clip, &destination, obj->angle_, NULL, static_cast<SDL_FlipMode>(obj->flip_));
 
   }
 
@@ -59,7 +65,9 @@ void Renderer::render_all()
   //debug points
   for(auto& sop : sets_of_points)
   {
-    SDL_SetRenderDrawColor(renderer.get(), sop->draw_color_.r, sop->draw_color_.g, sop->draw_color_.b, sop->draw_color_.a);
+    SDL_SetRenderDrawColor(renderer.get(), CDC_R, CDC_G, CDC_B, CDC_A);
+
+    
     SDL_RenderLines(renderer.get(), sop->points_.data(), sop->points_.size());
   }
   #endif
@@ -92,11 +100,6 @@ void Renderer::removeRenderable(TextureInstance* res)
   render_order.remove(res);
 }
 
-SDL_Renderer* Renderer::getRenderer()
-{
-  return renderer.get();
-}
-
 #ifdef  DRAW_COLLISION
 void Renderer::addSetPoints(Renderer::SetOfPoints* _sop)
 {
@@ -108,3 +111,5 @@ void Renderer::removeSetPoints(Renderer::SetOfPoints* _sop)
   sets_of_points.remove(_sop);
 }
 #endif
+
+SDL_Renderer* Renderer::getRenderer() {return renderer.get();}

@@ -35,17 +35,14 @@ class CollisionNode : public Node
   bool determineCollisionWithCapsule(Vec2 _apos, Vec2 _bpos, float _r);
 
 protected:
-  CollisionNode(const std::string& _name, CollisionShape* _shape, NodeInstanceController* _controller = nullptr, Node* _parent = nullptr);
+  CollisionNode(const std::string& _name, CollisionShape* _shape, bool doRendering = false, NodeInstanceController* _controller = nullptr, Node* _parent = nullptr);
 
 public:
   ~CollisionNode();
 
   void determineCollisionWith(CollisionNode* _collider);
 
-  #ifdef DRAW_COLLISION
   virtual void movePos(const Vec2& _move) override;
-  #endif
-
   std::unique_ptr<CollisionShape> shape_;
 
 };
@@ -55,10 +52,15 @@ public:
 class CollisionNodeTemplate : public NodeTemplate
 {
   std::function<CollisionShape*()> shape_factory_;
+
 protected:
   virtual Node* createNode(NodeInstanceController* _controller) override; 
+
 public:
+
+  bool renderCollision = false;
   CollisionNodeTemplate(const std::string& _name, std::function<CollisionShape*()> _shape_factory, std::function<NodeInstanceController*()> _controller_factory = nullptr);
+
 };
 
 //! NodeInstanceController derivative for CollisionNode
@@ -69,7 +71,6 @@ struct CollisionNodeInstanceController : public NodeInstanceController
 
 
   virtual void onCollisionWith(CollisionNode* _collider);
-
 };
 
 

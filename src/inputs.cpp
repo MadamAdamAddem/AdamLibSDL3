@@ -2,7 +2,8 @@
 #include <AdamLib/Signal.hpp>
 
 #include <SDL3/SDL_mouse.h>
-
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_events.h>
 
 using namespace AdamLib;
 

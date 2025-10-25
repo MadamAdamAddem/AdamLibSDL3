@@ -1,6 +1,5 @@
 Use more smart pointers for cases where allocation and deallocation are manual.
 Privatize unneccesarrily exposed methods, members, and contructors. 
 Remove singletons (window and root node).
-Remove C Style casts.
 Add more nodes.
-
+Add multithreading.

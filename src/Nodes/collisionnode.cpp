@@ -3,11 +3,8 @@
 #include <AdamLib/Defines.hpp>
 #include <AdamLib/Nodes/CollisionNode.hpp>
 
-#define CUTE_C2_IMPLEMENTATION
-#include <AdamLib/Collision/cute_c2.hpp>
+#include "../Collision/cute_c2.hpp"
 
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
 
 #include <iostream>
 #include <assert.h>
@@ -29,11 +26,11 @@ c2Circle circleConversion(CollisionCircle* _circle)
 }
 
 
-CollisionNode::CollisionNode(const std::string& _name, CollisionShape* _shape, NodeInstanceController* _controller,  Node* _parent) : 
+CollisionNode::CollisionNode(const std::string& _name, CollisionShape* _shape, bool doRendering, NodeInstanceController* _controller,  Node* _parent) : 
   Node(_name, _controller, _parent), shape_(_shape)
 {
   assert(_shape != nullptr);
-
+  shape_->setVisibility(doRendering);
 }
 
 CollisionNode::~CollisionNode()
@@ -134,15 +131,14 @@ bool CollisionNode::determineCollisionWithCapsule(Vec2 _apos, Vec2 _bpos, float 
 
 
 
-#ifdef DRAW_COLLISION
-#include <AdamLib/Core/Rendering.hpp>
+
 
 void CollisionNode::movePos(const Vec2& _move)
 {
   Node::movePos(_move);
   shape_->updatePos(pos_);
 }
-#endif
+
 
 
 
@@ -157,7 +153,8 @@ CollisionNodeTemplate::CollisionNodeTemplate(const std::string& _name, std::func
 
 Node* CollisionNodeTemplate::createNode(NodeInstanceController* _controller)
 {
-  return new CollisionNode(default_name_, shape_factory_(), _controller);
+  CollisionNode* n = new CollisionNode(default_name_, shape_factory_(), renderCollision, _controller);
+  return n;
 }
 /*----- CollisionTemplate -----*/
 

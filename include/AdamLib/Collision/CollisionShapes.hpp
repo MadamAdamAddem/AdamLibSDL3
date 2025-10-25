@@ -2,11 +2,8 @@
 
 #include <AdamLib/Defines.hpp>
 #include <AdamLib/Math.hpp>
-
-
-#ifdef DRAW_COLLISION 
-#include "AdamLib/Core/Rendering.hpp"
-#endif
+#include <AdamLib/Core/Rendering.hpp>
+#include <memory>
 
 namespace AdamLib
 {
@@ -44,16 +41,16 @@ struct CollisionShape
   };
   ShapeType shapetype_{INVALID};
 
-  #ifdef DRAW_COLLISION
-  Renderer::SetOfPoints points_to_render_;
+  CollisionShape();
+  ~CollisionShape();
+
+  void setVisibility(bool doRendering);
+
+  std::unique_ptr<Renderer::SetOfPoints> points_to_render_;
   virtual void updatePos(Vec2 _move) = 0;
-  ~CollisionShape()
-  {
-    Renderer::removeSetPoints(&points_to_render_);
-  }
-  #endif
 
   AABB aabb_; //!<The bounding box for the shape, centered at 0,0
+  bool renderCollision = false;
 };
 
 
@@ -63,9 +60,8 @@ struct CollisionRectangle : public CollisionShape
 {
   CollisionRectangle(const Vec2 _offset, const double _width, const double _height);
 
-  #ifdef DRAW_COLLISION
   virtual void updatePos(Vec2 _pos) override;
-  #endif
+
 
 
   Vec2 offset_; //!<Center of rectangle, relative to collisionnode
@@ -76,9 +72,7 @@ struct CollisionCircle : public CollisionShape
 {
   CollisionCircle(const Vec2 _offset, const float _r);
 
-  #ifdef DRAW_COLLISION
   virtual void updatePos(Vec2 _pos) override;
-  #endif
 
 
 
@@ -90,9 +84,8 @@ struct CollisionCapsule : public CollisionShape
 {
   CollisionCapsule(const Vec2 _a_offset, const Vec2 _b_offset, const float _r);
 
-  #ifdef DRAW_COLLISION
   virtual void updatePos(Vec2 _pos) override;
-  #endif
+
 
 
 
@@ -108,9 +101,9 @@ struct CollisionRay : public CollisionShape
 {
   CollisionRay(const Vec2 _offset, const Vec2 _direction_normalized, const float _len);
 
-  #ifdef DRAW_COLLISION
+
   virtual void updatePos(Vec2 _pos) override;
-  #endif
+
   
   Vec2 offset_; //!<The origin point of the ray, relative to collision node
   Vec2 direction_normalized_; //!<The direction of the ray, with positive y pointing downwards

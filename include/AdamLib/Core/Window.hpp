@@ -1,10 +1,11 @@
 #pragma once
-#include <SDL3/SDL.h>
 #include <memory>
 
 
 namespace AdamLib
 {
+
+class Window;
 
 //! Game Window Singleton
 /*!
@@ -18,7 +19,7 @@ class GameWindow
   GameWindow& operator=(const GameWindow&) = delete;
 
 
-  std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window_;
+  std::unique_ptr<Window> window_;
   int width_, height_;
 
 public:
