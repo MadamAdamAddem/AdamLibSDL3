@@ -18,12 +18,6 @@ void SpriteNode::changeTexture(const std::string& _img_path, ScaleMode _scale_mo
   texture_.changeTexture(_img_path, _scale_mode);
 }
 
-void SpriteNode::setPos(const Vec2& _pos)
-{
-  Node::setPos(_pos);
-  texture_.setRenderCenter(pos_);
-}
-
 void SpriteNode::movePos(const Vec2& _move)
 {
   Node::movePos(_move);
@@ -45,17 +39,14 @@ void SpriteNode::setTextureStretch(const Vec2& _scale)
   texture_.scale_.y = _scale.y;
 }
 
-SpriteNode::~SpriteNode()
-{
-}
+
 
 //
 
-SpriteNodeTemplate::SpriteNodeTemplate(const std::string& _name, const std::string& _img_path, std::function<NodeInstanceController*()> _controller_factory) : 
+SpriteNodeTemplate::SpriteNodeTemplate(const std::string& _name, const std::string& _img_path, std::function<SpriteNodeInstanceController*()> _controller_factory) : 
   NodeTemplate(_name, _controller_factory), 
   path_to_sprite_(_img_path)
 {
-
 }
 
 
@@ -72,4 +63,4 @@ Node* SpriteNodeTemplate::createNode(NodeInstanceController* _controller)
 
 
 
-SpriteNode* SpriteNodeInstanceController::self() {return (SpriteNode*)(self_);}
+SpriteNode* SpriteNodeInstanceController::self() {return static_cast<SpriteNode*>(self_);}

@@ -5,12 +5,10 @@ Node Template:
   -Change node instance's name upon instantiation, to avoid duplicate names
 
 Node:
-  -Change ready signal emmition to be upon full tree completion, not node construction
-
   -Add on-ready node initialization.
     Ex: Node* n_node = get_node_on_ready(..., &n_node);
     Returns nullptr if node not ready or existent
-    When node is loaded, fill n_node with ptr to node
+    When node is loaded, fill n_node with ptr to node?
 
   -Solve node being able to have (itself or parent) as indirect child
   -Solve node being able to have (itself or child) as indirect parent
@@ -24,4 +22,4 @@ SpriteNode:
 
 
 CollisionNode:
-  -Change DRAW_COLLISION to be runtime toggleable, rather than a compile-time macro
+  -Finish all collision types

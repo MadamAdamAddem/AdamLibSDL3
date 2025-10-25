@@ -1,22 +1,12 @@
 #pragma once
 #include <AdamLib/Math.hpp>
-#include <AdamLib/Nodes/CollisionNode.hpp>
 #include <AdamLib/Collision/AABB.hpp>
 #include <unordered_set>
 
 namespace AdamLib
 {
 
-
-/*
-
-  To Do:
-    -Implement some sort of global detection system
-    -Only update tree when collision object has moved
-    -Add masking and layers like godot
-
-*/
-
+class CollisionNode;
 
 //! A Broad-Phase Collision Detection Tree
 /*! 

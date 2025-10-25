@@ -20,7 +20,7 @@ void CollisionShape::setVisibility(bool doRendering)
 {
   if(doRendering && !renderCollision)
     Renderer::addSetPoints(points_to_render_.get());
-  else
+  else if(!doRendering)
     Renderer::removeSetPoints(points_to_render_.get());
 
   renderCollision = doRendering;

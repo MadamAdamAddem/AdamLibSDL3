@@ -38,11 +38,23 @@ struct Player : CollisionNodeInstanceController
     RegisterKeyChangeConnection(KEY_DOWN, onMovementInputChange);
     RegisterKeyChangeConnection(KEY_RIGHT, onMovementInputChange);
     RegisterKeyChangeConnection(KEY_LSHIFT, onMovementInputChange);
+    RegisterKeyChangeConnection(KEY_0, toggle);
+
   }
 
   void onCollisionWith(CollisionNode* _n) override
   { 
     std::cout << "Collision Yippie!" << std::endl;
+  }
+
+  void toggle()
+  {
+    static bool f = true;
+    if(Input::keystate(AdamLib::KEY_0))
+    {
+      f = !f;
+      self()->setCollisionRendering(f);
+    }
   }
 
 
@@ -64,15 +76,16 @@ struct Player : CollisionNodeInstanceController
 
 
 
+
 void loadgame()
 {
   Node& roo = Node::getRoot();
 
 
-  SpriteNodeTemplate player_sprite("Player_Sprite", "assets/square144.png", Controller(Player));
-  CollisionNodeTemplate player_collision("Player_Collision", Rectangle(Vec2(0,0), 144, 144));
+  //SpriteNodeTemplate player_sprite("Player_Sprite", "assets/square144.png", Controller(Player));
+  CollisionNodeTemplate player_collision("Player_Collision", Rectangle(Vec2(0,0), 144, 144), CollisionController(Player));
   player_collision.renderCollision = true;
-  player_sprite.registerChildTemplate(&player_collision);
+  //player_sprite.registerChildTemplate(&player_collision);
 
   // SpriteNodeTemplate player_sprite2("Player_Sprite2", "assets/square144.png", Controller(Player));
   // CollisionNodeTemplate player_collision2("Player_Collision2", Rectangle(Vec2(0,0), 144, 144));
@@ -84,17 +97,15 @@ void loadgame()
   // CollisionNodeTemplate ray_collision("Ray_Collision", Ray(Vec2(500, 200), Vec2(1,1), 50));
 
 
-  Node* playernode = player_sprite.createInstance();
+  //Node* playernode = player_sprite.createInstance();
   // Node* playernode2 = player_sprite2.createInstance();
   // Node* boxnode = box_collision.createInstance();
   // Node* raynode = ray_collision.createInstance();
 
-  roo.addChild(playernode);
+  roo.addChild(player_collision.createInstance());
   // roo.addChild(playernode2);
   // roo.addChild(boxnode);
   // roo.addChild(raynode);
-
-
 
   // detector.addCollisionNode((CollisionNode*)boxnode);
   // detector.addCollisionNode((CollisionNode*)raynode);

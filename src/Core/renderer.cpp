@@ -15,10 +15,7 @@ using namespace AdamLib;
 
 std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> renderer{nullptr, SDL_DestroyRenderer};
 std::list<TextureInstance*> render_order;
-
-#ifdef DRAW_COLLISION
 std::list<Renderer::SetOfPoints*> sets_of_points;
-#endif
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
@@ -60,17 +57,12 @@ void Renderer::render_all()
 
   }
 
-
-  #ifdef DRAW_COLLISION
+  SDL_SetRenderDrawColor(renderer.get(), CDC_R, CDC_G, CDC_B, CDC_A);
   //debug points
   for(auto& sop : sets_of_points)
   {
-    SDL_SetRenderDrawColor(renderer.get(), CDC_R, CDC_G, CDC_B, CDC_A);
-
-    
     SDL_RenderLines(renderer.get(), sop->points_.data(), sop->points_.size());
   }
-  #endif
 
   SDL_RenderPresent(renderer.get());
 }
@@ -100,7 +92,6 @@ void Renderer::removeRenderable(TextureInstance* res)
   render_order.remove(res);
 }
 
-#ifdef  DRAW_COLLISION
 void Renderer::addSetPoints(Renderer::SetOfPoints* _sop)
 {
   sets_of_points.push_back(_sop);
@@ -110,6 +101,5 @@ void Renderer::removeSetPoints(Renderer::SetOfPoints* _sop)
 {
   sets_of_points.remove(_sop);
 }
-#endif
 
 SDL_Renderer* Renderer::getRenderer() {return renderer.get();}

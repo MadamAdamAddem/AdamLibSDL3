@@ -33,10 +33,6 @@ CollisionNode::CollisionNode(const std::string& _name, CollisionShape* _shape, b
   shape_->setVisibility(doRendering);
 }
 
-CollisionNode::~CollisionNode()
-{
-
-}
 
 //this is a mess
 void CollisionNode::determineCollisionWith(CollisionNode* _collider)
@@ -129,8 +125,10 @@ bool CollisionNode::determineCollisionWithCapsule(Vec2 _apos, Vec2 _bpos, float 
   return false;
 }
 
-
-
+void CollisionNode::setCollisionRendering(bool renderCollision)
+{
+  shape_->setVisibility(renderCollision);
+}
 
 
 void CollisionNode::movePos(const Vec2& _move)
@@ -144,12 +142,9 @@ void CollisionNode::movePos(const Vec2& _move)
 
 /*----- CollisionTemplate -----*/
 
-CollisionNodeTemplate::CollisionNodeTemplate(const std::string& _name, std::function<CollisionShape*()> _shape_factory, std::function<NodeInstanceController*()> _controller_factory) : 
+CollisionNodeTemplate::CollisionNodeTemplate(const std::string& _name, std::function<CollisionShape*()> _shape_factory, std::function<CollisionNodeInstanceController*()> _controller_factory) : 
   NodeTemplate(_name, _controller_factory), 
-  shape_factory_(_shape_factory)
-{
-
-}
+  shape_factory_(_shape_factory) {}
 
 Node* CollisionNodeTemplate::createNode(NodeInstanceController* _controller)
 {
@@ -160,8 +155,7 @@ Node* CollisionNodeTemplate::createNode(NodeInstanceController* _controller)
 
 /*----- CollisionNodeInstanceController -----*/
 
-
-CollisionNode* CollisionNodeInstanceController::self() {return (CollisionNode*)(self_);}
+CollisionNode* CollisionNodeInstanceController::self() {return static_cast<CollisionNode*>(self_);}
 
 void CollisionNodeInstanceController::onCollisionWith(CollisionNode* _collider) {}
 

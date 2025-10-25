@@ -1,4 +1,5 @@
 #include <AdamLib/Collision/CollisionDetector.hpp>
+#include <AdamLib/Nodes/CollisionNode.hpp>
 
 using namespace AdamLib;
 

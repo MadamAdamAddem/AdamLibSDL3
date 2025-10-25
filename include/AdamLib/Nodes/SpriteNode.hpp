@@ -14,13 +14,15 @@ class SpriteNodeInstanceController;
 */
 class SpriteNode : public Node
 {
-protected:
   friend class SpriteNodeTemplate;
+
+
+protected:
   TextureInstance texture_;
-public:
 
   SpriteNode(const std::string& _name, const std::string& _img_path, NodeInstanceController* _controller = nullptr, Node* _parent = nullptr);
-  virtual ~SpriteNode();
+public:
+
 
   void changeTexture(const std::string& _img_path, ScaleMode _scale_mode = NEAREST);
   void setLayer(unsigned layer);
@@ -28,7 +30,6 @@ public:
   void setVisibility(bool visible);
   void toggleVisibility();
 
-  virtual void setPos(const Vec2& _pos) override;
   virtual void movePos(const Vec2& _move) override;
 
 };
@@ -41,7 +42,7 @@ protected:
 
 
 public:
-  SpriteNodeTemplate(const std::string& _name, const std::string& _img_path, std::function<NodeInstanceController*()> _controller_factory = nullptr);
+  SpriteNodeTemplate(const std::string& _name, const std::string& _img_path, std::function<SpriteNodeInstanceController*()> _controller_factory = nullptr);
   std::string path_to_sprite_;
 
   Vec2 default_stretch_{1,1};
@@ -56,5 +57,7 @@ struct SpriteNodeInstanceController : public NodeInstanceController
   SpriteNode* self() override;
 };
 
+
+#define SpriteController(Typename) [] () -> SpriteNodeInstanceController* {return static_cast<SpriteNodeInstanceController*>(new Typename());}
 
 }

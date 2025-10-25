@@ -38,9 +38,9 @@ protected:
   CollisionNode(const std::string& _name, CollisionShape* _shape, bool doRendering = false, NodeInstanceController* _controller = nullptr, Node* _parent = nullptr);
 
 public:
-  ~CollisionNode();
 
   void determineCollisionWith(CollisionNode* _collider);
+  void setCollisionRendering(bool renderCollision);
 
   virtual void movePos(const Vec2& _move) override;
   std::unique_ptr<CollisionShape> shape_;
@@ -59,7 +59,7 @@ protected:
 public:
 
   bool renderCollision = false;
-  CollisionNodeTemplate(const std::string& _name, std::function<CollisionShape*()> _shape_factory, std::function<NodeInstanceController*()> _controller_factory = nullptr);
+  CollisionNodeTemplate(const std::string& _name, std::function<CollisionShape*()> _shape_factory, std::function<CollisionNodeInstanceController*()> _controller_factory = nullptr);
 
 };
 
@@ -73,6 +73,7 @@ struct CollisionNodeInstanceController : public NodeInstanceController
   virtual void onCollisionWith(CollisionNode* _collider);
 };
 
+#define CollisionController(Typename) [] () -> CollisionNodeInstanceController* {return static_cast<CollisionNodeInstanceController*>(new Typename());}
 
 
 }

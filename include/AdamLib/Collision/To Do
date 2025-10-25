@@ -1,0 +1,4 @@
+Collision Detector:
+  -Implement some sort of global detection system
+  -Only update tree when collision object has moved
+  -Add masking and layers like godot

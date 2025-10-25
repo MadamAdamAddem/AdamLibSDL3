@@ -16,46 +16,45 @@ class Node;
 class NodeInstanceController;
 class NodeTemplate;
 
-#define BMETHOD(Class, Method) std::bind(&Class::Method, this)
-
-
 //! Base Node class
 /*!
+    Not to be directly derived from unless intending to make a new node-type.
+    To create an instance of a Node, create NodeTemplate object and create instance from there.
 
-
-
-
+    Holds ownership of child nodes, and propogates signals to them.
+    Propogation is top down, meaning parent node handles calls then emits signals for child to handle.
 */
 class Node
 {
   friend class NodeTemplate;
-protected:
+
+  //! Child class, containing the child node and relevant connection controllers.
   struct Child
   {
     Child() = default;
     ~Child()
     {
       process_connection_.disconnect();
-      set_pos_connection_.disconnect();
       move_pos_connection_.disconnect();
     }
 
     ConnectionController process_connection_;
-    ConnectionController set_pos_connection_;
     ConnectionController move_pos_connection_;
 
     std::unique_ptr<Node> child_;
   };
 
-  std::unordered_map<std::string, Child> node_map_; //!< Map's node name to Child object
+  std::unordered_map<std::string, Child> node_map_; //!<Maps node name to Child object
 
-  std::unique_ptr<NodeInstanceController> controller_; 
-
+  Node* parent_;
   Signal<double> propogate_process_;
   Signal<Vec2> propogate_set_pos_;
   Signal<Vec2> propogate_move_pos_;
 
-  Node* parent_;
+protected:
+
+  std::unique_ptr<NodeInstanceController> controller_; //!<Optional controller
+
   Node(const std::string& _name, NodeInstanceController* _controller = nullptr, Node* parent = nullptr);
 
   Vec2 pos_{0,0};
@@ -64,10 +63,10 @@ protected:
   std::string global_path_{"/root"};
 
 public:
-
   virtual ~Node();
 
-  virtual void process(double _dT);
+
+  void process(double _dT);
 
   /*!
       \param _node
@@ -116,19 +115,10 @@ public:
 
       \return
         True on success, false on failure.
-        Failure occurs if _parent is equal to current parent, or nullptr, or for any addChild failure reason.
+        Failure occurs if _parent is equal to current parent, is nullptr, or for any addChild failure reason.
+        If this function fails because it could not be added as a child to _parent, it will be owned by nothing and outside of the scene tree.
   */  
   bool moveToBeChildOf(Node* _parent);
-
-  //! Determines if given name follows naming conventions (NOT IMPLEMENTED)
-  /*!
-      \param _name
-        The name to be tested.
-
-      \return
-        True if name is valid, false if invalid.
-  */  
-  static bool followsNameConventions(const std::string& _name);
 
   //! Changes this node's name (NOT FULLY IMPLEMENTED)
   /*!
@@ -140,7 +130,6 @@ public:
   */  
   bool changeName(const std::string& _name);
   
-
   //! Prints all node's children to std::cout
   /*!
       \param _depth
@@ -196,18 +185,28 @@ public:
   */  
   static Node* getNode(const std::string& _global_path);
 
+  //! Determines if given name follows naming conventions (NOT IMPLEMENTED)
+  /*!
+      \param _name
+        The name to be tested.
+
+      \return
+        True if name is valid, false if invalid.
+  */  
+  static bool followsNameConventions(const std::string& _name);
+
   //! Prints entire node tree starting from root
-  static void  printTree();
+  static void printTree();
 
   //! Adds node to death row to be deleted before next loop start
   /*!
       \param _to_be_deleted
         The node to be deleted. Will still be valid until next loop.
   */
-  static void  queueFree(Node* _to_be_deleted);
+  static void queueFree(Node* _to_be_deleted);
 
   //! Frees queue'd nodes before next loop start
-  static void  freeQueued();
+  static void freeQueued();
 
 
 };
@@ -261,7 +260,11 @@ public:
 };
 
 
-#define Controller(Typename) [] () -> Typename* {return new Typename();}
+
+#define BMETHOD(Class, Method) std::bind(&Class::Method, this)
+#define NodeController(Typename) [] () -> NodeInstanceController* {return static_cast<NodeInstanceController*>(new Typename());}
+
+
 
 
 }
