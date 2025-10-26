@@ -1,7 +1,9 @@
 #include <AdamLib/Nodes/Node.hpp>
+#include <AdamLib/Defines.hpp>
 #include <cstddef>
 #include <unordered_set>
 #include <iostream>
+
 using namespace AdamLib;
 
 
@@ -10,9 +12,7 @@ std::unordered_set<std::string> to_be_freed;
 
 
 Node::Node(const std::string& _name, NodeInstanceController* _controller, Node* _parent) :
-  name_(_name),
-  controller_(_controller),
-  parent_(_parent)
+  name_(_name), controller_(_controller), parent_(_parent)
 {
   if(controller_)
     controller_->self_ = this;
@@ -25,6 +25,24 @@ Node::~Node()
   propogate_process_.clear();
 }
 
+
+/*-----Child SubClass-----*/
+Node::Child::Child(ConnectionController _process_connection, ConnectionController _move_pos_connection, Node* _child_node) :
+  process_connection_(_process_connection), move_pos_connection_(_move_pos_connection), child_node_(_child_node) {}
+
+Node::Child::Child(Child&& _c) : 
+  process_connection_(_c.process_connection_), move_pos_connection_(_c.move_pos_connection_), child_node_(_c.child_node_.release()) 
+{
+  _c.process_connection_.reset();
+  _c.move_pos_connection_.reset();
+}
+
+Node::Child::~Child()
+{
+  process_connection_.disconnect();
+  move_pos_connection_.disconnect();
+}
+/*-----Child SubClass-----*/
 
 
 void Node::process(double _dT)
@@ -48,27 +66,17 @@ void Node::updatePath()
 
   for(auto& c : node_map_)
   {
-    c.second.child_->updatePath();
+    c.second.child_node_->updatePath();
   }
 }
 
-bool Node::changeName(const std::string& _name)
+bool Node::followsNameConventions(const std::string &_name)
 {
-  if(!parent_)
-  {
-    name_ = _name;
-    updatePath();
+  if(_name.find('/') == _name.npos)
     return true;
-  }
 
-
-  auto node_extract = parent_->node_map_.extract(name_);
-  node_extract.key() = _name;
-  parent_->node_map_.insert(std::move(node_extract));
-  name_ = _name;
-
-  updatePath();
-  return true;
+  
+  return false;
 }
 
 /*-----Path and Name Management-----*/
@@ -78,29 +86,30 @@ bool Node::changeName(const std::string& _name)
 
 bool Node::addChild(Node* _node)
 {
-  if(node_map_.contains(_node->name_) || _node == this || _node == parent_)
+  
+  if(_node == this || _node == parent_ || _node->parent_ == this)
     return false;
+
+  while(node_map_.contains(_node->name_))
+    _node->name_.push_back(CHAR_TO_APPEND);
+  
+  
 
 
   _node->parent_ = this;
 
-  auto& child = node_map_[_node->name_];
-
-  child.child_.reset(_node);
-
-  child.process_connection_ = (propogate_process_.connect(
+  auto pp = propogate_process_.connect(
     std::bind(&Node::process, _node, std::placeholders::_1)
-  ));
+      );
 
-  child.move_pos_connection_ = (propogate_move_pos_.connect(
+  auto pmp = propogate_move_pos_.connect(
     std::bind(&Node::movePos, _node, std::placeholders::_1)
-  ));
-
-  
-
+      );
+  node_map_.emplace(
+    _node->name_, Child{pp, pmp, _node}
+  );
 
   _node->updatePath();
-
   return true;
 }
 
@@ -117,8 +126,9 @@ Node* Node::getMyChild(const std::string& _local_path)
   if(i > _local_path.size())
     i = _local_path.size();
 
-  if(node_map_.contains(first))
-    return node_map_[first].child_->getMyChild(_local_path.substr(i));
+  auto it = node_map_.find(first);
+  if(it != node_map_.end())
+    return it->second.child_node_->getMyChild(_local_path.substr(i));
   else
     return nullptr;
 
@@ -127,10 +137,11 @@ Node* Node::getMyChild(const std::string& _local_path)
 
 Node* Node::disconnectChild(const std::string& _child_name)
 {
-  if(!node_map_.contains(_child_name))
+  auto it = node_map_.find(_child_name);
+  if(it == node_map_.end())
     return nullptr;
 
-  Node* child = node_map_[_child_name].child_.release();
+  Node* child = it->second.child_node_.release();
   node_map_.erase(_child_name);
   return child;
 }
@@ -152,7 +163,7 @@ void Node::immediatelyKillAllChildren()
 {
   for(auto& c : node_map_)
   {
-    c.second.child_->immediatelyKillAllChildren();
+    c.second.child_node_->immediatelyKillAllChildren();
   }
 
   node_map_.clear();
@@ -180,13 +191,12 @@ void Node::printChildren(int _depth)
   for(auto& kid : node_map_)
   {
     for(int i=0; i<_depth; ++i)
-      std::cout << "    ";
+      std::cout << "   ";
     
     std::cout << kid.first << "/";
-    kid.second.child_->printChildren(_depth + 1);
+    kid.second.child_node_->printChildren(_depth + 1);
   }
 
-  std::cout << std::endl;
 }
 /*-----Children Management-----*/
 
@@ -230,12 +240,6 @@ Node* Node::getNode(const std::string& _global_path)
   std::string path = _global_path.substr(6);
   return getRoot().getMyChild(path);
 }
-
-// bool Node::followsNameConventions(const std::string &_name)
-// {
-//   //NOT IMPLEMENTED
-//   return false;
-// }
 
 void Node::printTree()
 {

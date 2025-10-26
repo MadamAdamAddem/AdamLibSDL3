@@ -140,7 +140,7 @@ void CollisionNode::movePos(const Vec2& _move)
 
 
 
-/*----- CollisionTemplate -----*/
+/*----- CollisionNodeTemplate -----*/
 
 CollisionNodeTemplate::CollisionNodeTemplate(const std::string& _name, std::function<CollisionShape*()> _shape_factory, std::function<CollisionNodeInstanceController*()> _controller_factory) : 
   NodeTemplate(_name, _controller_factory), 

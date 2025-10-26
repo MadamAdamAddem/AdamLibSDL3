@@ -13,7 +13,6 @@ namespace Renderer
 {
 
 
-  #ifdef DRAW_COLLISION
   struct SetOfPoints
   {
     std::vector<SDL_FPoint>points_;
@@ -22,7 +21,6 @@ namespace Renderer
 
   void addSetPoints(SetOfPoints* _sop);
   void removeSetPoints(SetOfPoints* _sop);
-  #endif
 
   //! Do not call, internal only
   void initRenderer(SDL_Window* _window);

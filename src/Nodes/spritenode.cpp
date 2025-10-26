@@ -5,6 +5,7 @@ using namespace AdamLib;
 
 
 
+/*----- SpriteNode -----*/
 
 SpriteNode::SpriteNode(const std::string& _name, const std::string& _img_path, NodeInstanceController* _controller, Node* _parent) : 
   Node(_name, _controller, _parent), 
@@ -39,9 +40,10 @@ void SpriteNode::setTextureStretch(const Vec2& _scale)
   texture_.scale_.y = _scale.y;
 }
 
+/*----- SpriteNode -----*/
 
 
-//
+/*----- SpriteNodeTemplate -----*/
 
 SpriteNodeTemplate::SpriteNodeTemplate(const std::string& _name, const std::string& _img_path, std::function<SpriteNodeInstanceController*()> _controller_factory) : 
   NodeTemplate(_name, _controller_factory), 
@@ -59,6 +61,9 @@ Node* SpriteNodeTemplate::createNode(NodeInstanceController* _controller)
 
   return instance;
 }
+
+/*----- SpriteNodeTemplate -----*/
+
 
 
 

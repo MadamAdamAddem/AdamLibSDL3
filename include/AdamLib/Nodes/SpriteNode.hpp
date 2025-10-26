@@ -39,8 +39,6 @@ class SpriteNodeTemplate : public NodeTemplate
 {
 protected:
   Node* createNode(NodeInstanceController* _controller) override; 
-
-
 public:
   SpriteNodeTemplate(const std::string& _name, const std::string& _img_path, std::function<SpriteNodeInstanceController*()> _controller_factory = nullptr);
   std::string path_to_sprite_;

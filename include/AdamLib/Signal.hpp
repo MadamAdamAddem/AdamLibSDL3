@@ -16,18 +16,22 @@ struct SignalGeneric
 
 struct ConnectionController
 {
-  ConnectionController() = default;
   ConnectionController(SignalGeneric* _signal, uint32_t _id) : signal_(_signal), connection_id_(_id) {}
-  SignalGeneric* signal_;
+  SignalGeneric* signal_ = nullptr;
   uint32_t connection_id_{0};
   void disconnect()
   {
     if(signal_)
     {
       signal_->disconnect(connection_id_);
-      signal_ = nullptr;
-      connection_id_ = 0;
+      reset();
     }
+  }
+
+  void reset()
+  {
+    signal_ = nullptr;
+    connection_id_ = 0;
   }
 };
 

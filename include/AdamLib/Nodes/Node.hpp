@@ -31,17 +31,18 @@ class Node
   //! Child class, containing the child node and relevant connection controllers.
   struct Child
   {
-    Child() = default;
-    ~Child()
-    {
-      process_connection_.disconnect();
-      move_pos_connection_.disconnect();
-    }
-
+    Child(ConnectionController _process_connection, ConnectionController _move_pos_connection, Node* _child_node);
+    
+    //these are defined/deleted to allow proper emplacement into node_map_. Copy is deleted because of unique ptr
+    Child(const Child& _c) = delete;
+    Child& operator=(const Child& _c) = delete;
+    Child(Child&& _c);
+    ~Child();
+    
     ConnectionController process_connection_;
     ConnectionController move_pos_connection_;
 
-    std::unique_ptr<Node> child_;
+    std::unique_ptr<Node> child_node_;
   };
 
   std::unordered_map<std::string, Child> node_map_; //!<Maps node name to Child object
@@ -72,6 +73,7 @@ public:
       \param _node
         The node to be added. 
         Ownership will be taken by the node this method is called on.
+        Name will be changed to prevent name collision.
 
       \return
         True on success, false on failure.
@@ -119,16 +121,6 @@ public:
         If this function fails because it could not be added as a child to _parent, it will be owned by nothing and outside of the scene tree.
   */  
   bool moveToBeChildOf(Node* _parent);
-
-  //! Changes this node's name (NOT FULLY IMPLEMENTED)
-  /*!
-      \param _name
-        The name to be changed to.
-
-      \return
-        True if name is valid. Should be false if invalid, but for now always returns true.
-  */  
-  bool changeName(const std::string& _name);
   
   //! Prints all node's children to std::cout
   /*!
