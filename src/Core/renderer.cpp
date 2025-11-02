@@ -1,8 +1,8 @@
 #include <AdamLib/Core/Rendering.hpp>
 #include <AdamLib/Resources/Texture.hpp>
 
-#include "RendererInternal.hpp"
 #include "../Resources/ResourcesInternal.hpp"
+#include "RendererInternal.hpp"
 
 #include <SDL3/SDL_blendmode.h>
 #include <SDL3/SDL_oldnames.h>
@@ -61,8 +61,8 @@ void Renderer::render_all()
 
   }
 
-  SDL_SetRenderDrawColor(renderer.get(), CDC_R, CDC_G, CDC_B, CDC_A);
   //debug points
+  SDL_SetRenderDrawColor(renderer.get(), CDC_R, CDC_G, CDC_B, CDC_A);
   for(auto& sop : sets_of_points)
   {
     SDL_RenderLines(renderer.get(), sop->points_.data(), sop->points_.size());
@@ -74,7 +74,6 @@ void Renderer::render_all()
 void Renderer::addTexture(TextureInstance* res)
 {
   assert(res != nullptr);
-  
   for(auto it = render_order.begin(); it != render_order.end(); ++it)
   {
     if(*it == res)

@@ -303,6 +303,9 @@ bool NodeTemplate::registerChildTemplate(NodeTemplate* _child)
   if(!_child)
     return false;
 
+  if(_child == this)
+    return false;
+
   if(_child->default_name_.find('/') != std::string::npos)
     return false;
 

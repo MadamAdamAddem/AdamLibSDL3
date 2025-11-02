@@ -58,7 +58,9 @@ Node* SpriteNodeTemplate::createNode(NodeInstanceController* _controller)
   instance->setLayer(layer_);
   instance->setVisibility(!hidden_);
   instance->setTextureStretch(default_stretch_);
-
+  if(!hidden_)
+    instance->texture_.addToRenderer();
+  
   return instance;
 }
 

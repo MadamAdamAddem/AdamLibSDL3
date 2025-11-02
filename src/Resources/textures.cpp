@@ -1,13 +1,16 @@
-#include "ResourcesInternal.hpp"
 #include "../Core/RendererInternal.hpp"
+#include "ResourcesInternal.hpp"
+
 #include <AdamLib/Resources/Texture.hpp>
 #include <AdamLib/Resources/ResManager.hpp>
 #include <AdamLib/Core/Rendering.hpp>
 
-
 #include <SDL3_image/SDL_image.h>
 
 using namespace AdamLib;
+
+
+
 
 
 TextureResource::TextureResource() : texture_(nullptr)
@@ -15,16 +18,22 @@ TextureResource::TextureResource() : texture_(nullptr)
 
 }
 
-
-void TextureResource::createResource(const std::string& _path)
+TextureResource::~TextureResource()
 {
-  texture_.reset(new Texture(IMG_LoadTexture(Renderer::getRenderer(), _path.c_str())));
+  delete texture_;
+}
+
+
+void TextureResource::initializeResource(const std::string& _path)
+{
+  texture_ = new Texture(IMG_LoadTexture(Renderer::getRenderer(), _path.c_str()));
 }
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
 
-TextureInstance::TextureInstance(const std::string& _path, ScaleMode _scale_mode) :  m_texture(ResManager::requestResource<TextureResource>(_path))
+TextureInstance::TextureInstance(const std::string& _path, ScaleMode _scale_mode) :  
+m_texture(std::static_pointer_cast<TextureResource>(ResManager::requestResource(_path, ResManager::Texture)))
 {
   SDL_SetTextureScaleMode(m_texture->getTexture()->texture_, static_cast<SDL_ScaleMode>(_scale_mode));
 
@@ -38,13 +47,12 @@ TextureInstance::TextureInstance(const std::string& _path, ScaleMode _scale_mode
 
   hidden_ = false;
   layer_ = 1;
-  Renderer::addTexture(this);
 }
 
 void TextureInstance::changeTexture(const std::string& _path, ScaleMode _scale_mode)
 {
   m_texture.reset();
-  m_texture = (ResManager::requestResource<TextureResource>(_path));
+  m_texture = std::static_pointer_cast<TextureResource>(ResManager::requestResource(_path, ResManager::Texture));
   SDL_SetTextureScaleMode(m_texture->getTexture()->texture_, static_cast<SDL_ScaleMode>(_scale_mode));
 
   float w, h;
@@ -90,3 +98,12 @@ void TextureInstance::setRenderCenter(Vec2 _center)
   render_destination_.x = _center.x - render_destination_.w/2;
   render_destination_.y = _center.y - render_destination_.h/2;
 }
+
+/*---------------------------------------------------------------------------------------------------------------*/
+
+Texture::~Texture()
+{
+  SDL_DestroyTexture(texture_);
+}
+
+Texture::Texture(SDL_Texture* _texture) : texture_(_texture) {}

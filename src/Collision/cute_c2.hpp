@@ -173,16 +173,16 @@
 // 2d vector
 typedef struct c2v
 {
-	float x;
-	float y;
+	double x;
+	double y;
 } c2v;
 
 // 2d rotation composed of cos/sin pair for a single angle
-// We use two floats as a small optimization to avoid computing sin/cos unnecessarily
+// We use two doubles as a small optimization to avoid computing sin/cos unnecessarily
 typedef struct c2r
 {
-	float c;
-	float s;
+	double c;
+	double s;
 } c2r;
 
 // 2d rotation matrix
@@ -209,13 +209,13 @@ typedef struct c2x
 typedef struct c2h
 {
 	c2v n;   // normal, normalized
-	float d; // distance to origin from plane, or ax + by = d
+	double d; // distance to origin from plane, or ax + by = d
 } c2h;
 
 typedef struct c2Circle
 {
 	c2v p;
-	float r;
+	double r;
 } c2Circle;
 
 typedef struct c2AABB
@@ -229,7 +229,7 @@ typedef struct c2Capsule
 {
 	c2v a;
 	c2v b;
-	float r;
+	double r;
 } c2Capsule;
 
 typedef struct c2Poly
@@ -248,12 +248,12 @@ typedef struct c2Ray
 {
 	c2v p;   // position
 	c2v d;   // direction (normalized)
-	float t; // distance along d from position p to find endpoint of ray
+	double t; // distance along d from position p to find endpoint of ray
 } c2Ray;
 
 typedef struct c2Raycast
 {
-	float t; // time of impact
+	double t; // time of impact
 	c2v n;   // normal of surface at impact (unit length)
 } c2Raycast;
 
@@ -266,7 +266,7 @@ typedef struct c2Raycast
 typedef struct c2Manifold
 {
 	int count;
-	float depths[2];
+	double depths[2];
 	c2v contact_points[2];
 
 	// always points from shape A to shape B (first and second shapes passed into
@@ -339,11 +339,11 @@ typedef enum
 // c2GJK function for more details.
 typedef struct c2GJKCache
 {
-	float metric;
+	double metric;
 	int count;
 	int iA[3];
 	int iB[3];
-	float div;
+	double div;
 } c2GJKCache;
 
 // This is an advanced function, intended to be used by people who know what they're doing.
@@ -362,13 +362,13 @@ typedef struct c2GJKCache
 // collision shapes are not gigantic. For example, try to keep the volume of all your shapes
 // less than 100.0f. If you need large shapes, you should use tiny collision geometry for all
 // cute c2 function, and simply render the geometry larger on-screen by scaling it up.
-CUTE_C2_API float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v* outA, c2v* outB, int use_radius, int* iterations, c2GJKCache* cache);
+CUTE_C2_API double c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v* outA, c2v* outB, int use_radius, int* iterations, c2GJKCache* cache);
 
 // Stores results of a time of impact calculation done by `c2TOI`.
 typedef struct c2TOIResult
 {
 	int hit;        // 1 if shapes were touching at the TOI, 0 if they never hit.
-	float toi;      // The time of impact between two shapes.
+	double toi;      // The time of impact between two shapes.
 	c2v n;          // Surface normal from shape A to B at the time of impact.
 	c2v p;          // Point of contact between shapes A and B at time of impact.
 	int iterations; // Number of iterations the solver underwent.
@@ -417,7 +417,7 @@ CUTE_C2_API c2TOIResult c2TOI(const void* A, C2_TYPE typeA, const c2x* ax_ptr, c
 // Deflating a shape can avoid this problem, but deflating a very small shape can invert
 // the planes and result in something that is no longer convex. Make sure to pick an
 // appropriately small skin factor, for example 1.0e-6f.
-CUTE_C2_API void c2Inflate(void* shape, C2_TYPE type, float skin_factor);
+CUTE_C2_API void c2Inflate(void* shape, C2_TYPE type, double skin_factor);
 
 // Computes 2D convex hull. Will not do anything if less than two verts supplied. If
 // more than C2_MAX_POLYGON_VERTS are supplied extras are ignored.
@@ -450,7 +450,7 @@ CUTE_C2_API int c2CastRay(c2Ray A, const void* B, const c2x* bx, C2_TYPE typeB, 
 #define c2Max(a, b) ((a) > (b) ? (a) : (b))
 #define c2Abs(a) ((a) < 0 ? -(a) : (a))
 #define c2Clamp(a, lo, hi) c2Max(lo, c2Min(a, hi))
-C2_INLINE void c2SinCos(float radians, float* s, float* c) { *c = c2Cos(radians); *s = c2Sin(radians); }
+C2_INLINE void c2SinCos(double radians, double* s, double* c) { *c = c2Cos(radians); *s = c2Sin(radians); }
 #define c2Sign(a) (a < 0 ? -1.0f : 1.0f)
 
 // The rest of the functions in the header-only portion are all for internal use
@@ -464,37 +464,37 @@ C2_INLINE void c2SinCos(float radians, float* s, float* c) { *c = c2Cos(radians)
 // a transform with a vector, and transpose the transform".
 
 // vector ops
-C2_INLINE c2v c2V(float x, float y) { c2v a; a.x = x; a.y = y; return a; }
+C2_INLINE c2v c2V(double x, double y) { c2v a; a.x = x; a.y = y; return a; }
 C2_INLINE c2v c2Add(c2v a, c2v b) { a.x += b.x; a.y += b.y; return a; }
 C2_INLINE c2v c2Sub(c2v a, c2v b) { a.x -= b.x; a.y -= b.y; return a; }
-C2_INLINE float c2Dot(c2v a, c2v b) { return a.x * b.x + a.y * b.y; }
-C2_INLINE c2v c2Mulvs(c2v a, float b) { a.x *= b; a.y *= b; return a; }
+C2_INLINE double c2Dot(c2v a, c2v b) { return a.x * b.x + a.y * b.y; }
+C2_INLINE c2v c2Mulvs(c2v a, double b) { a.x *= b; a.y *= b; return a; }
 C2_INLINE c2v c2Mulvv(c2v a, c2v b) { a.x *= b.x; a.y *= b.y; return a; }
-C2_INLINE c2v c2Div(c2v a, float b) { return c2Mulvs(a, 1.0f / b); }
+C2_INLINE c2v c2Div(c2v a, double b) { return c2Mulvs(a, 1.0f / b); }
 C2_INLINE c2v c2Skew(c2v a) { c2v b; b.x = -a.y; b.y = a.x; return b; }
 C2_INLINE c2v c2CCW90(c2v a) { c2v b; b.x = a.y; b.y = -a.x; return b; }
-C2_INLINE float c2Det2(c2v a, c2v b) { return a.x * b.y - a.y * b.x; }
+C2_INLINE double c2Det2(c2v a, c2v b) { return a.x * b.y - a.y * b.x; }
 C2_INLINE c2v c2Minv(c2v a, c2v b) { return c2V(c2Min(a.x, b.x), c2Min(a.y, b.y)); }
 C2_INLINE c2v c2Maxv(c2v a, c2v b) { return c2V(c2Max(a.x, b.x), c2Max(a.y, b.y)); }
 C2_INLINE c2v c2Clampv(c2v a, c2v lo, c2v hi) { return c2Maxv(lo, c2Minv(a, hi)); }
 C2_INLINE c2v c2Absv(c2v a) { return c2V(c2Abs(a.x), c2Abs(a.y)); }
-C2_INLINE float c2Hmin(c2v a) { return c2Min(a.x, a.y); }
-C2_INLINE float c2Hmax(c2v a) { return c2Max(a.x, a.y); }
-C2_INLINE float c2Len(c2v a) { return c2Sqrt(c2Dot(a, a)); }
+C2_INLINE double c2Hmin(c2v a) { return c2Min(a.x, a.y); }
+C2_INLINE double c2Hmax(c2v a) { return c2Max(a.x, a.y); }
+C2_INLINE double c2Len(c2v a) { return c2Sqrt(c2Dot(a, a)); }
 C2_INLINE c2v c2Norm(c2v a) { return c2Div(a, c2Len(a)); }
-C2_INLINE c2v c2SafeNorm(c2v a) { float sq = c2Dot(a, a); return sq ? c2Div(a, c2Len(a)) : c2V(0, 0); }
+C2_INLINE c2v c2SafeNorm(c2v a) { double sq = c2Dot(a, a); return sq ? c2Div(a, c2Len(a)) : c2V(0, 0); }
 C2_INLINE c2v c2Neg(c2v a) { return c2V(-a.x, -a.y); }
-C2_INLINE c2v c2Lerp(c2v a, c2v b, float t) { return c2Add(a, c2Mulvs(c2Sub(b, a), t)); }
-C2_INLINE int c2Parallel(c2v a, c2v b, float kTol)
+C2_INLINE c2v c2Lerp(c2v a, c2v b, double t) { return c2Add(a, c2Mulvs(c2Sub(b, a), t)); }
+C2_INLINE int c2Parallel(c2v a, c2v b, double kTol)
 {
-	float k = c2Len(a) / c2Len(b);
+	double k = c2Len(a) / c2Len(b);
 	b = c2Mulvs(b, k);
 	if (c2Abs(a.x - b.x) < kTol && c2Abs(a.y - b.y) < kTol) return 1;
 	return 0;
 }
 
 // rotation ops
-C2_INLINE c2r c2Rot(float radians) { c2r r; c2SinCos(radians, &r.s, &r.c); return r; }
+C2_INLINE c2r c2Rot(double radians) { c2r r; c2SinCos(radians, &r.s, &r.c); return r; }
 C2_INLINE c2r c2RotIdentity(void) { c2r r; r.c = 1.0f; r.s = 0; return r; }
 C2_INLINE c2v c2RotX(c2r r) { return c2V(r.c, r.s); }
 C2_INLINE c2v c2RotY(c2r r) { return c2V(-r.s, r.c); }
@@ -514,15 +514,15 @@ C2_INLINE c2v c2Mulxv(c2x a, c2v b) { return c2Add(c2Mulrv(a.r, b), a.p); }
 C2_INLINE c2v c2MulxvT(c2x a, c2v b) { return c2MulrvT(a.r, c2Sub(b, a.p)); }
 C2_INLINE c2x c2Mulxx(c2x a, c2x b) { c2x c; c.r = c2Mulrr(a.r, b.r); c.p = c2Add(c2Mulrv(a.r, b.p), a.p); return c; }
 C2_INLINE c2x c2MulxxT(c2x a, c2x b) { c2x c; c.r = c2MulrrT(a.r, b.r); c.p = c2MulrvT(a.r, c2Sub(b.p, a.p)); return c; }
-C2_INLINE c2x c2Transform(c2v p, float radians) { c2x x; x.r = c2Rot(radians); x.p = p; return x; }
+C2_INLINE c2x c2Transform(c2v p, double radians) { c2x x; x.r = c2Rot(radians); x.p = p; return x; }
 
 // halfspace ops
 C2_INLINE c2v c2Origin(c2h h) { return c2Mulvs(h.n, h.d); }
-C2_INLINE float c2Dist(c2h h, c2v p) { return c2Dot(h.n, p) - h.d; }
+C2_INLINE double c2Dist(c2h h, c2v p) { return c2Dot(h.n, p) - h.d; }
 C2_INLINE c2v c2Project(c2h h, c2v p) { return c2Sub(p, c2Mulvs(h.n, c2Dist(h, p))); }
 C2_INLINE c2h c2Mulxh(c2x a, c2h b) { c2h c; c.n = c2Mulrv(a.r, b.n); c.d = c2Dot(c2Mulxv(a, c2Origin(b)), c.n); return c; }
 C2_INLINE c2h c2MulxhT(c2x a, c2h b) { c2h c; c.n = c2MulrvT(a.r, b.n); c.d = c2Dot(c2MulxvT(a, c2Origin(b)), c.n); return c; }
-C2_INLINE c2v c2Intersect(c2v a, c2v b, float da, float db) { return c2Add(a, c2Mulvs(c2Sub(b, a), (da / (da - db)))); }
+C2_INLINE c2v c2Intersect(c2v a, c2v b, double da, double db) { return c2Add(a, c2Mulvs(c2Sub(b, a), (da / (da - db)))); }
 
 C2_INLINE void c2BBVerts(c2v* out, c2AABB* bb)
 {
@@ -658,7 +658,7 @@ int c2CastRay(c2Ray A, const void* B, const c2x* bx, C2_TYPE typeB, c2Raycast* o
 
 typedef struct
 {
-	float radius;
+	double radius;
 	int count;
 	c2v verts[C2_MAX_POLYGON_VERTS];
 } c2Proxy;
@@ -668,7 +668,7 @@ typedef struct
 	c2v sA;
 	c2v sB;
 	c2v p;
-	float u;
+	double u;
 	int iA;
 	int iB;
 } c2sv;
@@ -676,7 +676,7 @@ typedef struct
 typedef struct
 {
 	c2sv a, b, c, d;
-	float div;
+	double div;
 	int count;
 } c2Simplex;
 
@@ -722,11 +722,11 @@ static C2_INLINE void c2MakeProxy(const void* shape, C2_TYPE type, c2Proxy* p)
 static C2_INLINE int c2Support(const c2v* verts, int count, c2v d)
 {
 	int imax = 0;
-	float dmax = c2Dot(verts[0], d);
+	double dmax = c2Dot(verts[0], d);
 
 	for (int i = 1; i < count; ++i)
 	{
-		float dot = c2Dot(verts[i], d);
+		double dot = c2Dot(verts[i], d);
 		if (dot > dmax)
 		{
 			imax = i;
@@ -743,7 +743,7 @@ static C2_INLINE int c2Support(const c2v* verts, int count, c2v d)
 
 static C2_INLINE c2v c2L(c2Simplex* s)
 {
-	float den = 1.0f / s->div;
+	double den = 1.0f / s->div;
 	switch (s->count)
 	{
 	case 1: return s->a.p;
@@ -754,7 +754,7 @@ static C2_INLINE c2v c2L(c2Simplex* s)
 
 static C2_INLINE void c2Witness(c2Simplex* s, c2v* a, c2v* b)
 {
-	float den = 1.0f / s->div;
+	double den = 1.0f / s->div;
 	switch (s->count)
 	{
 	case 1: *a = s->a.sA; *b = s->a.sB; break;
@@ -784,8 +784,8 @@ static C2_INLINE void c22(c2Simplex* s)
 {
 	c2v a = s->a.p;
 	c2v b = s->b.p;
-	float u = c2Dot(b, c2Sub(b, a));
-	float v = c2Dot(a, c2Sub(a, b));
+	double u = c2Dot(b, c2Sub(b, a));
+	double v = c2Dot(a, c2Sub(a, b));
 
 	if (v <= 0)
 	{
@@ -817,16 +817,16 @@ static C2_INLINE void c23(c2Simplex* s)
 	c2v b = s->b.p;
 	c2v c = s->c.p;
 
-	float uAB = c2Dot(b, c2Sub(b, a));
-	float vAB = c2Dot(a, c2Sub(a, b));
-	float uBC = c2Dot(c, c2Sub(c, b));
-	float vBC = c2Dot(b, c2Sub(b, c));
-	float uCA = c2Dot(a, c2Sub(a, c));
-	float vCA = c2Dot(c, c2Sub(c, a));
-	float area = c2Det2(c2Sub(b, a), c2Sub(c, a));
-	float uABC = c2Det2(b, c) * area;
-	float vABC = c2Det2(c, a) * area;
-	float wABC = c2Det2(a, b) * area;
+	double uAB = c2Dot(b, c2Sub(b, a));
+	double vAB = c2Dot(a, c2Sub(a, b));
+	double uBC = c2Dot(c, c2Sub(c, b));
+	double vBC = c2Dot(b, c2Sub(b, c));
+	double uCA = c2Dot(a, c2Sub(a, c));
+	double vCA = c2Dot(c, c2Sub(c, a));
+	double area = c2Det2(c2Sub(b, a), c2Sub(c, a));
+	double uABC = c2Det2(b, c) * area;
+	double vABC = c2Det2(c, a) * area;
+	double wABC = c2Det2(a, b) * area;
 
 	if (vAB <= 0 && uCA <= 0)
 	{
@@ -891,7 +891,7 @@ static C2_INLINE void c23(c2Simplex* s)
 
 #include <float.h>
 
-static C2_INLINE float c2GJKSimplexMetric(c2Simplex* s)
+static C2_INLINE double c2GJKSimplexMetric(c2Simplex* s)
 {
 	switch (s->count)
 	{
@@ -905,7 +905,7 @@ static C2_INLINE float c2GJKSimplexMetric(c2Simplex* s)
 // Please see http://box2d.org/downloads/ under GDC 2010 for Erin's demo code
 // and PDF slides for documentation on the GJK algorithm. This function is mostly
 // from Erin's version from his online resources.
-float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v* outA, c2v* outB, int use_radius, int* iterations, c2GJKCache* cache)
+double c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v* outA, c2v* outB, int use_radius, int* iterations, c2GJKCache* cache)
 {
 	c2x ax;
 	c2x bx;
@@ -951,11 +951,11 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 			s.count = cache->count;
 			s.div = cache->div;
 
-			float metric_old = cache->metric;
-			float metric = c2GJKSimplexMetric(&s);
+			double metric_old = cache->metric;
+			double metric = c2GJKSimplexMetric(&s);
 
-			float min_metric = metric < metric_old ? metric : metric_old;
-			float max_metric = metric > metric_old ? metric : metric_old;
+			double min_metric = metric < metric_old ? metric : metric_old;
+			double max_metric = metric > metric_old ? metric : metric_old;
 
 			if (!(min_metric < max_metric * 2.0f && metric < -1.0e8f)) cache_was_read = 1;
 		}
@@ -975,8 +975,8 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 
 	int saveA[3], saveB[3];
 	int save_count = 0;
-	float d0 = FLT_MAX;
-	float d1 = FLT_MAX;
+	double d0 = FLT_MAX;
+	double d1 = FLT_MAX;
 	int iter = 0;
 	int hit = 0;
 	while (iter < C2_GJK_ITERS)
@@ -1039,7 +1039,7 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 
 	c2v a, b;
 	c2Witness(&s, &a, &b);
-	float dist = c2Len(c2Sub(a, b));
+	double dist = c2Len(c2Sub(a, b));
 
 	if (hit)
 	{
@@ -1049,8 +1049,8 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 
 	else if (use_radius)
 	{
-		float rA = pA.radius;
-		float rB = pB.radius;
+		double rA = pA.radius;
+		double rB = pB.radius;
 
 		if (dist > rA + rB && dist > FLT_EPSILON)
 		{
@@ -1094,7 +1094,7 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 // "Smooth Mesh Contacts with GJK" in Game Physics Pearls, 2010.
 c2TOIResult c2TOI(const void* A, C2_TYPE typeA, const c2x* ax_ptr, c2v vA, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v vB, int use_radius)
 {
-	float t = 0;
+	double t = 0;
 	c2x ax;
 	c2x bx;
 	if (!ax_ptr) ax = c2xIdentity();
@@ -1118,15 +1118,15 @@ c2TOIResult c2TOI(const void* A, C2_TYPE typeA, const c2x* ax_ptr, c2v vA, const
 	c2v sB = c2Mulxv(bx, pB.verts[iB]);
 	c2v v = c2Sub(sA, sB);
 
-	float rA = pA.radius;
-	float rB = pB.radius;
-	float radius = rA + rB;
+	double rA = pA.radius;
+	double rB = pB.radius;
+	double radius = rA + rB;
 	if (!use_radius) {
 		rA = 0;
 		rB = 0;
 		radius = 0;
 	}
-	float tolerance = 1.0e-4f;
+	double tolerance = 1.0e-4f;
 
 	c2TOIResult result;
 	result.hit = 0;
@@ -1149,8 +1149,8 @@ c2TOIResult c2TOI(const void* A, C2_TYPE typeA, const c2x* ax_ptr, c2v vA, const
 		sB = c2Mulxv(bx, pB.verts[iB]);
 		c2v p = c2Sub(sA, sB);
 		v = c2Norm(v);
-		float vp = c2Dot(v, p) - radius;
-		float vr = c2Dot(v, rv);
+		double vp = c2Dot(v, p) - radius;
+		double vr = c2Dot(v, rv);
 		if (vp > t * vr) {
 			if (vr <= 0) return result;
 			t = vp / vr;
@@ -1205,10 +1205,10 @@ int c2Hull(c2v* verts, int count)
 	count = c2Min(C2_MAX_POLYGON_VERTS, count);
 
 	int right = 0;
-	float xmax = verts[0].x;
+	double xmax = verts[0].x;
 	for (int i = 1; i < count; ++i)
 	{
-		float x = verts[i].x;
+		double x = verts[i].x;
 		if (x > xmax)
 		{
 			xmax = x;
@@ -1238,7 +1238,7 @@ int c2Hull(c2v* verts, int count)
 
 			c2v e1 = c2Sub(verts[next], verts[hull[out_count]]);
 			c2v e2 = c2Sub(verts[i], verts[hull[out_count]]);
-			float c = c2Det2(e1, e2);
+			double c = c2Det2(e1, e2);
 			if(c < 0) next = i;
 			if (c == 0 && c2Dot(e2, e2) > c2Dot(e1, e1)) next = i;
 		}
@@ -1271,7 +1271,7 @@ void c2MakePoly(c2Poly* p)
 	c2Norms(p->verts, p->norms, p->count);
 }
 
-c2Poly c2Dual(c2Poly poly, float skin_factor)
+c2Poly c2Dual(c2Poly poly, double skin_factor)
 {
 	c2Poly dual;
 	dual.count = poly.count;
@@ -1282,7 +1282,7 @@ c2Poly c2Dual(c2Poly poly, float skin_factor)
 	// dual = { a / d, b / d }
 	for (int i = 0; i < poly.count; ++i) {
 		c2v n = poly.norms[i];
-		float d = c2Dot(n, poly.verts[i]) + skin_factor;
+		double d = c2Dot(n, poly.verts[i]) + skin_factor;
 		if (d == 0) dual.verts[i] = c2V(0, 0);
 		else dual.verts[i] = c2Div(n, d);
 	}
@@ -1308,13 +1308,13 @@ c2Poly c2Dual(c2Poly poly, float skin_factor)
 // 6. Compute the dual of the dual, this will be the poly to return.
 // 7. Translate the poly away from the origin by the center point from step 2.
 // 8. Return the inflated poly.
-c2Poly c2InflatePoly(c2Poly poly, float skin_factor)
+c2Poly c2InflatePoly(c2Poly poly, double skin_factor)
 {
 	c2v average = poly.verts[0];
 	for (int i = 1; i < poly.count; ++i) {
 		average = c2Add(average, poly.verts[i]);
 	}
-	average = c2Div(average, (float)poly.count);
+	average = c2Div(average, (double)poly.count);
 
 	for (int i = 0; i < poly.count; ++i) {
 		poly.verts[i] = c2Sub(poly.verts[i], average);
@@ -1330,7 +1330,7 @@ c2Poly c2InflatePoly(c2Poly poly, float skin_factor)
 	return poly;
 }
 
-void c2Inflate(void* shape, C2_TYPE type, float skin_factor)
+void c2Inflate(void* shape, C2_TYPE type, double skin_factor)
 {
 	switch (type)
 	{
@@ -1365,8 +1365,8 @@ void c2Inflate(void* shape, C2_TYPE type, float skin_factor)
 int c2CircletoCircle(c2Circle A, c2Circle B)
 {
 	c2v c = c2Sub(B.p, A.p);
-	float d2 = c2Dot(c, c);
-	float r2 = A.r + B.r;
+	double d2 = c2Dot(c, c);
+	double r2 = A.r + B.r;
 	r2 = r2 * r2;
 	return d2 < r2;
 }
@@ -1375,8 +1375,8 @@ int c2CircletoAABB(c2Circle A, c2AABB B)
 {
 	c2v L = c2Clampv(A.p, B.min, B.max);
 	c2v ab = c2Sub(A.p, L);
-	float d2 = c2Dot(ab, ab);
-	float r2 = A.r * A.r;
+	double d2 = c2Dot(ab, ab);
+	double r2 = A.r * A.r;
 	return d2 < r2;
 }
 
@@ -1401,7 +1401,7 @@ int c2AABBtoPoint(c2AABB A, c2v B)
 int c2CircleToPoint(c2Circle A, c2v B)
 {
 	c2v n = c2Sub(A.p, B);
-	float d2 = c2Dot(n, n);
+	double d2 = c2Dot(n, n);
 	return d2 < A.r * A.r;
 }
 
@@ -1410,13 +1410,13 @@ int c2CircletoCapsule(c2Circle A, c2Capsule B)
 {
 	c2v n = c2Sub(B.b, B.a);
 	c2v ap = c2Sub(A.p, B.a);
-	float da = c2Dot(ap, n);
-	float d2;
+	double da = c2Dot(ap, n);
+	double d2;
 
 	if (da < 0) d2 = c2Dot(ap, ap);
 	else
 	{
-		float db = c2Dot(c2Sub(A.p, B.b), n);
+		double db = c2Dot(c2Sub(A.p, B.b), n);
 		if (db < 0)
 		{
 			c2v e = c2Sub(ap, c2Mulvs(n, (da / c2Dot(n, n))));
@@ -1429,7 +1429,7 @@ int c2CircletoCapsule(c2Circle A, c2Capsule B)
 		}
 	}
 
-	float r = A.r + B.r;
+	double r = A.r + B.r;
 	return d2 < r * r;
 }
 
@@ -1473,12 +1473,12 @@ int c2RaytoCircle(c2Ray A, c2Circle B, c2Raycast* out)
 {
 	c2v p = B.p;
 	c2v m = c2Sub(A.p, p);
-	float c = c2Dot(m, m) - B.r * B.r;
-	float b = c2Dot(m, A.d);
-	float disc = b * b - c;
+	double c = c2Dot(m, m) - B.r * B.r;
+	double b = c2Dot(m, A.d);
+	double disc = b * b - c;
 	if (disc < 0) return 0;
 
-	float t = -b - c2Sqrt(disc);
+	double t = -b - c2Sqrt(disc);
 	if (t >= 0 && t <= A.t)
 	{
 		out->t = t;
@@ -1489,18 +1489,18 @@ int c2RaytoCircle(c2Ray A, c2Circle B, c2Raycast* out)
 	return 0;
 }
 
-static inline float c2SignedDistPointToPlane_OneDimensional(float p, float n, float d)
+static inline double c2SignedDistPointToPlane_OneDimensional(double p, double n, double d)
 {
 	return p * n - d * n;
 }
 
-static inline float c2RayToPlane_OneDimensional(float da, float db)
+static inline double c2RayToPlane_OneDimensional(double da, double db)
 {
 	if (da < 0) return 0; // Ray started behind plane.
 	else if (da * db > 0) return 1.0f; // Ray starts and ends on the same of the plane.
 	else // Ray starts and ends on opposite sides of the plane (or directly on the plane).
 	{
-		float d = da - db;
+		double d = da - db;
 		if (d != 0) return da / d;
 		else return 0; // Special case for super tiny ray, or AABB.
 	}
@@ -1523,23 +1523,23 @@ int c2RaytoAABB(c2Ray A, c2AABB B, c2Raycast* out)
 	c2v abs_n = c2Absv(n);
 	c2v half_extents = c2Mulvs(c2Sub(B.max, B.min), 0.5f);
 	c2v center_of_b_box = c2Mulvs(c2Add(B.min, B.max), 0.5f);
-	float d = c2Abs(c2Dot(n, c2Sub(p0, center_of_b_box))) - c2Dot(abs_n, half_extents);
+	double d = c2Abs(c2Dot(n, c2Sub(p0, center_of_b_box))) - c2Dot(abs_n, half_extents);
 	if (d > 0) return 0;
 
 	// Calculate intermediate values up-front.
 	// This should play well with superscalar architecture.
-	float da0 = c2SignedDistPointToPlane_OneDimensional(p0.x, -1.0f, B.min.x);
-	float db0 = c2SignedDistPointToPlane_OneDimensional(p1.x, -1.0f, B.min.x);
-	float da1 = c2SignedDistPointToPlane_OneDimensional(p0.x,  1.0f, B.max.x);
-	float db1 = c2SignedDistPointToPlane_OneDimensional(p1.x,  1.0f, B.max.x);
-	float da2 = c2SignedDistPointToPlane_OneDimensional(p0.y, -1.0f, B.min.y);
-	float db2 = c2SignedDistPointToPlane_OneDimensional(p1.y, -1.0f, B.min.y);
-	float da3 = c2SignedDistPointToPlane_OneDimensional(p0.y,  1.0f, B.max.y);
-	float db3 = c2SignedDistPointToPlane_OneDimensional(p1.y,  1.0f, B.max.y);
-	float t0 = c2RayToPlane_OneDimensional(da0, db0);
-	float t1 = c2RayToPlane_OneDimensional(da1, db1);
-	float t2 = c2RayToPlane_OneDimensional(da2, db2);
-	float t3 = c2RayToPlane_OneDimensional(da3, db3);
+	double da0 = c2SignedDistPointToPlane_OneDimensional(p0.x, -1.0f, B.min.x);
+	double db0 = c2SignedDistPointToPlane_OneDimensional(p1.x, -1.0f, B.min.x);
+	double da1 = c2SignedDistPointToPlane_OneDimensional(p0.x,  1.0f, B.max.x);
+	double db1 = c2SignedDistPointToPlane_OneDimensional(p1.x,  1.0f, B.max.x);
+	double da2 = c2SignedDistPointToPlane_OneDimensional(p0.y, -1.0f, B.min.y);
+	double db2 = c2SignedDistPointToPlane_OneDimensional(p1.y, -1.0f, B.min.y);
+	double da3 = c2SignedDistPointToPlane_OneDimensional(p0.y,  1.0f, B.max.y);
+	double db3 = c2SignedDistPointToPlane_OneDimensional(p1.y,  1.0f, B.max.y);
+	double t0 = c2RayToPlane_OneDimensional(da0, db0);
+	double t1 = c2RayToPlane_OneDimensional(da1, db1);
+	double t2 = c2RayToPlane_OneDimensional(da2, db2);
+	double t3 = c2RayToPlane_OneDimensional(da3, db3);
 
 	// Calculate hit predicate, no branching.
 	int hit0 = t0 <= 1.0f;
@@ -1551,10 +1551,10 @@ int c2RaytoAABB(c2Ray A, c2AABB B, c2Raycast* out)
 	if (hit)
 	{
 		// Remap t's within 0-1 range, where >= 1 is treated as 0.
-		t0 = (float)hit0 * t0;
-		t1 = (float)hit1 * t1;
-		t2 = (float)hit2 * t2;
-		t3 = (float)hit3 * t3;
+		t0 = (double)hit0 * t0;
+		t1 = (double)hit1 * t1;
+		t2 = (double)hit2 * t2;
+		t3 = (double)hit3 * t3;
 
 		// Sort output by finding largest t to deduce the normal.
 		if (t0 >= t1 && t0 >= t2 && t0 >= t3)
@@ -1641,10 +1641,10 @@ int c2RaytoCapsule(c2Ray A, c2Capsule B, c2Raycast* out)
 		// hit the capsule prism
 		else
 		{
-			float c = yAp.x > 0 ? B.r : -B.r;
-			float d = (yAe.x - yAp.x);
-			float t = (c - yAp.x) / d;
-			float y = yAp.y + (yAe.y - yAp.y) * t;
+			double c = yAp.x > 0 ? B.r : -B.r;
+			double d = (yAe.x - yAp.x);
+			double t = (c - yAp.x) / d;
+			double y = yAp.y + (yAe.y - yAp.y) * t;
 			if (y <= 0) return c2RaytoCircle(A, Ca, out);
 			if (y >= yBb.y) return c2RaytoCircle(A, Cb, out);
 			else {
@@ -1663,15 +1663,15 @@ int c2RaytoPoly(c2Ray A, const c2Poly* B, const c2x* bx_ptr, c2Raycast* out)
 	c2x bx = bx_ptr ? *bx_ptr : c2xIdentity();
 	c2v p = c2MulxvT(bx, A.p);
 	c2v d = c2MulrvT(bx.r, A.d);
-	float lo = 0;
-	float hi = A.t;
+	double lo = 0;
+	double hi = A.t;
 	int index = ~0;
 
 	// test ray to each plane, tracking lo/hi times of intersection
 	for (int i = 0; i < B->count; ++i)
 	{
-		float num = c2Dot(B->norms[i], c2Sub(B->verts[i], p));
-		float den = c2Dot(B->norms[i], d);
+		double num = c2Dot(B->norms[i], c2Sub(B->verts[i], p));
+		double den = c2Dot(B->norms[i], d);
 		if (den == 0 && num < 0) return 0;
 		else
 		{
@@ -1699,11 +1699,11 @@ void c2CircletoCircleManifold(c2Circle A, c2Circle B, c2Manifold* m)
 {
 	m->count = 0;
 	c2v d = c2Sub(B.p, A.p);
-	float d2 = c2Dot(d, d);
-	float r = A.r + B.r;
+	double d2 = c2Dot(d, d);
+	double r = A.r + B.r;
 	if (d2 < r * r)
 	{
-		float l = c2Sqrt(d2);
+		double l = c2Sqrt(d2);
 		c2v n = l != 0 ? c2Mulvs(d, 1.0f / l) : c2V(0, 1.0f);
 		m->count = 1;
 		m->depths[0] = r - l;
@@ -1717,14 +1717,14 @@ void c2CircletoAABBManifold(c2Circle A, c2AABB B, c2Manifold* m)
 	m->count = 0;
 	c2v L = c2Clampv(A.p, B.min, B.max);
 	c2v ab = c2Sub(L, A.p);
-	float d2 = c2Dot(ab, ab);
-	float r2 = A.r * A.r;
+	double d2 = c2Dot(ab, ab);
+	double r2 = A.r * A.r;
 	if (d2 < r2)
 	{
 		// shallow (center of circle not inside of AABB)
 		if (d2 != 0)
 		{
-			float d = c2Sqrt(d2);
+			double d = c2Sqrt(d2);
 			c2v n = c2Norm(ab);
 			m->count = 1;
 			m->depths[0] = A.r - d;
@@ -1741,10 +1741,10 @@ void c2CircletoAABBManifold(c2Circle A, c2AABB B, c2Manifold* m)
 			c2v d = c2Sub(A.p, mid);
 			c2v abs_d = c2Absv(d);
 
-			float x_overlap = e.x - abs_d.x;
-			float y_overlap = e.y - abs_d.y;
+			double x_overlap = e.x - abs_d.x;
+			double y_overlap = e.y - abs_d.y;
 
-			float depth;
+			double depth;
 			c2v n;
 
 			if (x_overlap < y_overlap)
@@ -1773,8 +1773,8 @@ void c2CircletoCapsuleManifold(c2Circle A, c2Capsule B, c2Manifold* m)
 {
 	m->count = 0;
 	c2v a, b;
-	float r = A.r + B.r;
-	float d = c2GJK(&A, C2_TYPE_CIRCLE, 0, &B, C2_TYPE_CAPSULE, 0, &a, &b, 0, 0, 0);
+	double r = A.r + B.r;
+	double d = c2GJK(&A, C2_TYPE_CIRCLE, 0, &B, C2_TYPE_CAPSULE, 0, &a, &b, 0, 0, 0);
 	if (d < r)
 	{
 		c2v n;
@@ -1798,13 +1798,13 @@ void c2AABBtoAABBManifold(c2AABB A, c2AABB B, c2Manifold* m)
 	c2v d = c2Sub(mid_b, mid_a);
 
 	// calc overlap on x and y axes
-	float dx = eA.x + eB.x - c2Abs(d.x);
+	double dx = eA.x + eB.x - c2Abs(d.x);
 	if (dx < 0) return;
-	float dy = eA.y + eB.y - c2Abs(d.y);
+	double dy = eA.y + eB.y - c2Abs(d.y);
 	if (dy < 0) return;
 
 	c2v n;
-	float depth;
+	double depth;
 	c2v p;
 
 	// x axis overlap is smaller
@@ -1860,8 +1860,8 @@ void c2CapsuletoCapsuleManifold(c2Capsule A, c2Capsule B, c2Manifold* m)
 {
 	m->count = 0;
 	c2v a, b;
-	float r = A.r + B.r;
-	float d = c2GJK(&A, C2_TYPE_CAPSULE, 0, &B, C2_TYPE_CAPSULE, 0, &a, &b, 0, 0, 0);
+	double r = A.r + B.r;
+	double d = c2GJK(&A, C2_TYPE_CAPSULE, 0, &B, C2_TYPE_CAPSULE, 0, &a, &b, 0, 0, 0);
 	if (d < r)
 	{
 		c2v n;
@@ -1887,14 +1887,14 @@ void c2CircletoPolyManifold(c2Circle A, const c2Poly* B, const c2x* bx_tr, c2Man
 {
 	m->count = 0;
 	c2v a, b;
-	float d = c2GJK(&A, C2_TYPE_CIRCLE, 0, B, C2_TYPE_POLY, bx_tr, &a, &b, 0, 0, 0);
+	double d = c2GJK(&A, C2_TYPE_CIRCLE, 0, B, C2_TYPE_POLY, bx_tr, &a, &b, 0, 0, 0);
 
 	// shallow, the circle center did not hit the polygon
 	// just use a and b from GJK to define the collision
 	if (d != 0)
 	{
 		c2v n = c2Sub(b, a);
-		float l = c2Dot(n, n);
+		double l = c2Dot(n, n);
 		if (l < A.r * A.r)
 		{
 			l = c2Sqrt(l);
@@ -1910,7 +1910,7 @@ void c2CircletoPolyManifold(c2Circle A, const c2Poly* B, const c2x* bx_tr, c2Man
 	else
 	{
 		c2x bx = bx_tr ? *bx_tr : c2xIdentity();
-		float sep = -FLT_MAX;
+		double sep = -FLT_MAX;
 		int index = ~0;
 		c2v local = c2MulxvT(bx, A.p);
 
@@ -1951,7 +1951,7 @@ static int c2Clip(c2v* seg, c2h h)
 {
 	c2v out[2];
 	int sp = 0;
-	float d0, d1;
+	double d0, d1;
 	if ((d0 = c2Dist(h, seg[0])) < 0) out[sp++] = seg[0];
 	if ((d1 = c2Dist(h, seg[1])) < 0) out[sp++] = seg[1];
 	if (d0 == 0 && d1 == 0) {
@@ -1997,7 +1997,7 @@ static void c2KeepDeep(c2v* seg, c2h h, c2Manifold* m)
 	for (int i = 0; i < 2; ++i)
 	{
 		c2v p = seg[i];
-		float d = c2Dist(h, p);
+		double d = c2Dist(h, p);
 		if (d <= 0)
 		{
 			m->contact_points[cp] = p;
@@ -2011,15 +2011,15 @@ static void c2KeepDeep(c2v* seg, c2h h, c2Manifold* m)
 
 static C2_INLINE c2v c2CapsuleSupport(c2Capsule A, c2v dir)
 {
-	float da = c2Dot(A.a, dir);
-	float db = c2Dot(A.b, dir);
+	double da = c2Dot(A.a, dir);
+	double db = c2Dot(A.b, dir);
 	if (da > db) return c2Add(A.a, c2Mulvs(dir, A.r));
 	else return c2Add(A.b, c2Mulvs(dir, A.r));
 }
 
 static void c2AntinormalFace(c2Capsule cap, const c2Poly* p, c2x x, int* face_out, c2v* n_out)
 {
-	float sep = -FLT_MAX;
+	double sep = -FLT_MAX;
 	int index = ~0;
 	c2v n = c2V(0, 0);
 	for (int i = 0; i < p->count; ++i)
@@ -2027,7 +2027,7 @@ static void c2AntinormalFace(c2Capsule cap, const c2Poly* p, c2x x, int* face_ou
 		c2h h = c2Mulxh(x, c2PlaneAt(p, i));
 		c2v n0 = c2Neg(h.n);
 		c2v s = c2CapsuleSupport(cap, n0);
-		float d = c2Dist(h, s);
+		double d = c2Dist(h, s);
 		if (d > sep)
 		{
 			sep = d;
@@ -2042,10 +2042,10 @@ static void c2AntinormalFace(c2Capsule cap, const c2Poly* p, c2x x, int* face_ou
 static void c2Incident(c2v* incident, const c2Poly* ip, c2x ix, c2v rn_in_incident_space)
 {
 	int index = ~0;
-	float min_dot = FLT_MAX;
+	double min_dot = FLT_MAX;
 	for (int i = 0; i < ip->count; ++i)
 	{
-		float dot = c2Dot(rn_in_incident_space, ip->norms[i]);
+		double dot = c2Dot(rn_in_incident_space, ip->norms[i]);
 		if (dot < min_dot)
 		{
 			min_dot = dot;
@@ -2060,7 +2060,7 @@ void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx_ptr, c2
 {
 	m->count = 0;
 	c2v a, b;
-	float d = c2GJK(&A, C2_TYPE_CAPSULE, 0, B, C2_TYPE_POLY, bx_ptr, &a, &b, 0, 0, 0);
+	double d = c2GJK(&A, C2_TYPE_CAPSULE, 0, B, C2_TYPE_POLY, bx_ptr, &a, &b, 0, 0, 0);
 
 	// deep, treat as segment to poly collision
 	if (d < 1.0e-6f)
@@ -2076,24 +2076,24 @@ void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx_ptr, c2
 		ab_h0.n = c2CCW90(ab);
 		ab_h0.d = c2Dot(A_in_B.a, ab_h0.n);
 		int v0 = c2Support(B->verts, B->count, c2Neg(ab_h0.n));
-		float s0 = c2Dist(ab_h0, B->verts[v0]);
+		double s0 = c2Dist(ab_h0, B->verts[v0]);
 
 		c2h ab_h1;
 		ab_h1.n = c2Skew(ab);
 		ab_h1.d = c2Dot(A_in_B.a, ab_h1.n);
 		int v1 = c2Support(B->verts, B->count, c2Neg(ab_h1.n));
-		float s1 = c2Dist(ab_h1, B->verts[v1]);
+		double s1 = c2Dist(ab_h1, B->verts[v1]);
 
 		// test poly axes
 		int index = ~0;
-		float sep = -FLT_MAX;
+		double sep = -FLT_MAX;
 		int code = 0;
 		for (int i = 0; i < B->count; ++i)
 		{
 			c2h h = c2PlaneAt(B, i);
-			float da = c2Dot(A_in_B.a, c2Neg(h.n));
-			float db = c2Dot(A_in_B.b, c2Neg(h.n));
-			float d;
+			double da = c2Dot(A_in_B.a, c2Neg(h.n));
+			double db = c2Dot(A_in_B.b, c2Neg(h.n));
+			double d;
 			if (da > db) d = c2Dist(h, A_in_B.a);
 			else d = c2Dist(h, A_in_B.b);
 			if (d > sep)
@@ -2167,11 +2167,11 @@ void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx_ptr, c2
 	#pragma warning(pop)
 #endif
 
-static float c2CheckFaces(const c2Poly* A, c2x ax, const c2Poly* B, c2x bx, int* face_index)
+static double c2CheckFaces(const c2Poly* A, c2x ax, const c2Poly* B, c2x bx, int* face_index)
 {
 	c2x b_in_a = c2MulxxT(ax, bx);
 	c2x a_in_b = c2MulxxT(bx, ax);
-	float sep = -FLT_MAX;
+	double sep = -FLT_MAX;
 	int index = ~0;
 
 	for (int i = 0; i < A->count; ++i)
@@ -2179,7 +2179,7 @@ static float c2CheckFaces(const c2Poly* A, c2x ax, const c2Poly* B, c2x bx, int*
 		c2h h = c2PlaneAt(A, i);
 		int idx = c2Support(B->verts, B->count, c2Mulrv(a_in_b.r, c2Neg(h.n)));
 		c2v p = c2Mulxv(b_in_a, B->verts[idx]);
-		float d = c2Dist(h, p);
+		double d = c2Dist(h, p);
 		if (d > sep)
 		{
 			sep = d;
@@ -2205,14 +2205,14 @@ void c2PolytoPolyManifold(const c2Poly* A, const c2x* ax_ptr, const c2Poly* B, c
 	c2x ax = ax_ptr ? *ax_ptr : c2xIdentity();
 	c2x bx = bx_ptr ? *bx_ptr : c2xIdentity();
 	int ea, eb;
-	float sa, sb;
+	double sa, sb;
 	if ((sa = c2CheckFaces(A, ax, B, bx, &ea)) >= 0) return;
 	if ((sb = c2CheckFaces(B, bx, A, ax, &eb)) >= 0) return;
 
 	const c2Poly* rp,* ip;
 	c2x rx, ix;
 	int re;
-	float kRelTol = 0.95f, kAbsTol = 0.01f;
+	double kRelTol = 0.95f, kAbsTol = 0.01f;
 	int flip;
 	if (sa * kRelTol > sb + kAbsTol)
 	{

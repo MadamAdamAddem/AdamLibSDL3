@@ -12,18 +12,6 @@
 
 using namespace AdamLib;
 
-c2AABB aabbConversion(AABB _aabb)
-{
-  Vec2& bl = _aabb.bottom_left_;
-  Vec2& tr = _aabb.top_right_;
-
-  return {{static_cast<float>(bl.x), static_cast<float>(-bl.y)}, {static_cast<float>(tr.x), static_cast<float>(-tr.y)}};
-}
-
-c2Circle circleConversion(CollisionCircle* _circle)
-{
-  return {{static_cast<float>(_circle->center_.x), static_cast<float>(-_circle->center_.y)}, _circle->r_};
-}
 
 
 CollisionNode::CollisionNode(const std::string& _name, CollisionShape _shape, bool _doRendering, NodeInstanceController* _controller,  Node* _parent) : 
@@ -136,70 +124,6 @@ CollisionNode::~CollisionNode()
   Renderer::removeSetPoints(points_to_render_.get());
 }
 
-//this is a mess
-void CollisionNode::determineCollisionWith(CollisionNode* _collider)
-{
-
-  bool isCollision = false;
-
-
-  if(CollisionRectangle* rect = std::get_if<CollisionRectangle>(&_collider->shape_))
-  {
-    isCollision = determineCollisionWithRect({_collider->aabb_.bottom_left_, _collider->aabb_.top_right_});
-  }
-  else if(CollisionCircle* circ = std::get_if<CollisionCircle>(&shape_))
-  {
-    isCollision = determineCollisionWithCircle(circ->center_, circ->r_);
-  }
-  else
-    assert(0);
-
-
-  if(isCollision && controller_)
-  {
-    static_cast<CollisionNodeInstanceController*>(controller_.get())->onCollisionWith(_collider);
-  }
-}
-
-bool CollisionNode::determineCollisionWithRect(AABB _rect)
-{
-  c2AABB colliderrect = aabbConversion(_rect);
-
-  if(CollisionRectangle* rect = std::get_if<CollisionRectangle>(&shape_))
-  {
-    c2AABB myrect = aabbConversion(aabb_);
-    return c2AABBtoAABB(myrect, colliderrect);
-  }
-  else if(CollisionCircle* circ = std::get_if<CollisionCircle>(&shape_))
-  {
-    c2Circle mycirc = circleConversion(circ);
-    mycirc.p.x += pos_.x;
-    mycirc.p.y -= pos_.y;
-    return c2CircletoAABB(mycirc, colliderrect);
-  }
-  else 
-    assert(0);
-  // else if(CollisionCapsule* caps = std::get_if<CollisionCapsule>(&shape_))
-  // {
-
-  // }
-  // else if(CollisionRay* ray = std::get_if<CollisionRay>(&shape_))
-  // {
-
-  // }
-
-
-}
-
-bool CollisionNode::determineCollisionWithCircle(Vec2 _center, float _r)
-{
-  return false;
-}
-
-bool CollisionNode::determineCollisionWithCapsule(Vec2 _apos, Vec2 _bpos, float _r)
-{
-  return false;
-}
 
 void CollisionNode::setCollisionRendering(bool _renderCollision)
 {
@@ -216,9 +140,6 @@ void CollisionNode::movePos(const Vec2& _move)
   Node::movePos(_move);
   aabb_.bottom_left_ += _move;
   aabb_.top_right_ += _move;
-
-  if(!doRendering_)
-    return;
 
   for(auto& point : points_to_render_->points_)
   {

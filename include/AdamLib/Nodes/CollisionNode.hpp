@@ -28,10 +28,7 @@ class CollisionNodeInstanceController;
 class CollisionNode : public Node
 {
   friend class CollisionNodeTemplate;
-
-  bool determineCollisionWithRect(AABB _rect);
-  bool determineCollisionWithCircle(Vec2 _center, float _r);
-  bool determineCollisionWithCapsule(Vec2 _apos, Vec2 _bpos, float _r);
+  friend class CollisionDetector;
 
   void updatePointsToRender();
 
@@ -42,7 +39,6 @@ public:
 
   virtual ~CollisionNode();
 
-  void determineCollisionWith(CollisionNode* _collider);
   void setCollisionRendering(bool _renderCollision);
 
   virtual void movePos(const Vec2& _move) override;

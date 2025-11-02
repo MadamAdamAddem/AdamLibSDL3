@@ -4,24 +4,12 @@
 namespace AdamLib
 {
 
-
-struct Texture
-{
-  SDL_Texture* texture_;
-
-  ~Texture()
+  struct Texture
   {
-    SDL_DestroyTexture(texture_);
-  }
+    SDL_Texture* texture_;
+    ~Texture();
 
-  Texture(SDL_Texture* _texture) : texture_(_texture) {}
-
-  inline operator SDL_Texture*() const
-  {
-    return texture_;
-  }
-
-};
-
+    Texture(SDL_Texture* _texture);
+  };
 
 }

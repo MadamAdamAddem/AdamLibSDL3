@@ -37,16 +37,15 @@ class Texture;
 
 class TextureResource : public Resource
 {
-  std::unique_ptr<Texture> texture_; 
-
+  Texture* texture_;
 public:
 
   TextureResource();
-  ~TextureResource() = default;
+  ~TextureResource();
 
-  virtual void createResource(const std::string& _path) override;
+  virtual void initializeResource(const std::string& _path) override;
 
-  inline Texture* getTexture() {return texture_.get();}
+  inline Texture* getTexture() {return texture_;}
 
 
 };

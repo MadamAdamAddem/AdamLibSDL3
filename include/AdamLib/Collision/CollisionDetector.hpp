@@ -20,6 +20,8 @@ class CollisionDetector
   std::unordered_set<CollisionNode*> contained_nodes_;
   aabb::Tree tree_;
 
+  bool determineCollisionBetween(CollisionNode*, CollisionNode*);
+
 public:
 CollisionDetector(const Vec2& _dimensions);
 

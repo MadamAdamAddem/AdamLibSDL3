@@ -152,6 +152,7 @@ public:
 
   //! Get global position as string
   std::string posAsString();
+  inline const std::string_view getName() {return name_;}
   
 
   //! Gets child located at _local_path

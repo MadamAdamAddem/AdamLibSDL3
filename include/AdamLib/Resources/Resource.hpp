@@ -1,7 +1,5 @@
 #pragma once
-#include <concepts>
 #include <string>
-
 
 
 namespace AdamLib
@@ -13,15 +11,12 @@ protected:
 
 
 public:
-  virtual void createResource(const std::string& path) = 0;
+  virtual void initializeResource(const std::string& path) = 0;
   Resource() = default;
   virtual ~Resource() = default;
 
 
 };
-
-template<typename T>
-concept IsResource = std::derived_from<T, Resource>;
 
 
 }
