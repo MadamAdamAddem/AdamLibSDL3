@@ -19,11 +19,15 @@ std::list<Renderer::SetOfPoints*> sets_of_points;
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
-void Renderer::initRenderer(SDL_Window* window)
+void Renderer::initRenderer(SDL_Renderer* _renderer)
 {
-  renderer.reset(SDL_CreateRenderer(window, NULL));
+  static bool called = false;
+  if(called) return;
+
+  renderer.reset(_renderer);
   SDL_SetRenderLogicalPresentation(renderer.get(), 1280, 720, SDL_LOGICAL_PRESENTATION_STRETCH);
   SDL_SetRenderDrawColor(renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+  called = true;
 }
 
 void Renderer::render_all()

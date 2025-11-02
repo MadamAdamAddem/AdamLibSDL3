@@ -10,3 +10,7 @@
 #define CDC_G 255
 #define CDC_B 255
 #define CDC_A 255
+
+
+//CollisionTree AABB Thickness Modifier
+#define SKIN_THICKNESS 0.05

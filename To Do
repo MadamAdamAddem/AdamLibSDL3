@@ -1,6 +1,6 @@
 Use more smart pointers for cases where allocation and deallocation are manual.
 Privatize unneccesarrily exposed methods, members, and contructors. 
-Remove singletons (window and root node).
+Refactor root node to not be singleton.
 Add more nodes.
 Add multithreading.
 Add unique names for nodes. (Ex: %enemy as in godot)

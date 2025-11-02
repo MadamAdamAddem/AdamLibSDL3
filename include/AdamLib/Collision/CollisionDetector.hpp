@@ -13,7 +13,7 @@ class CollisionNode;
     Contains a dynamic AABB Tree. 
     When a possible collision is detected, both nodes involved are sent each-other to determine collision status.
 
-    All Collision Nodes entering the tree must at some time remove themselves from the tree. This must occur to prevent segfaults.
+    All Collision Nodes entering the tree must at some time remove themselves from the tree.
 */
 class CollisionDetector
 {
@@ -21,10 +21,10 @@ class CollisionDetector
   aabb::Tree tree_;
 
 public:
-  CollisionDetector(Vec2 _dimensions);
-  
-  //! Add collision node to detection tree
-  /*! \param _addition
+CollisionDetector(const Vec2& _dimensions);
+
+//! Add collision node to detection tree
+/*! \param _addition
         The node to be added
   */
   void addCollisionNode(CollisionNode* _addition);

@@ -1,0 +1,5 @@
+Renderer:
+  -Refactor rendering system to either use vector, or static array for performance reasons.
+
+Window:
+  -Change from being singleton.

@@ -33,6 +33,7 @@
 #ifndef _AABB_H
 #define _AABB_H
 
+#include <AdamLib/Nodes/CollisionNode.hpp>
 #include <AdamLib/Math.hpp>
 #include <vector>
 #include <unordered_map>
@@ -154,7 +155,7 @@ namespace aabb
         int height;
 
         /// The index of the particle that the node contains (leaf nodes only).
-        void* particle;
+        AdamLib::CollisionNode* particle;
 
         //! Test whether the node is a leaf.
         /*! \return
@@ -218,7 +219,7 @@ namespace aabb
             \param radius
                 The radius of the particle.
          */
-        void insertParticle(void*, AdamLib::Vec2&, double);
+        void insertParticle(AdamLib::CollisionNode*, double);
 
         //! Insert a particle into the tree (arbitrary shape with bounding box).
         /*! \param pointer
@@ -230,7 +231,7 @@ namespace aabb
             \param upperBound
                 The upper bound.
          */
-        void insertParticle(void*, AdamLib::Vec2&, AdamLib::Vec2&);
+        void insertParticle(AdamLib::CollisionNode*);
 
         /// Return the number of particles in the tree.
         unsigned int nParticles();
@@ -239,32 +240,14 @@ namespace aabb
         /*! \param pointer
                 The particle pointer (particleMap will be used to map the node).
          */
-        void removeParticle(void*);
+        void removeParticle(AdamLib::CollisionNode*);
 
         /// Remove all particles from the tree.
         void removeAll();
 
         //! Update the tree if a particle moves outside its fattened AABB.
-        /*! \param particle
-                The particle index (particleMap will be used to map the node).
-
-            \param position
-                The position vector of the particle.
-
-            \param radius
-                The radius of the particle.
-
-            \param alwaysReinsert
-                Always reinsert the particle, even if it's within its old AABB (default:false)
-
-            \return
-                Whether the particle was reinserted.
-         */
-        bool updateParticle(void*, const AdamLib::Vec2&, double, bool alwaysReinsert=false);
-
-        //! Update the tree if a particle moves outside its fattened AABB.
-        /*! \param particle
-                The particle index (particleMap will be used to map the node).
+        /*! \param pointer
+                The particle pointer (particleMap will be used to map the node).
 
             \param lowerBound
                 The lower bound in each dimension.
@@ -275,43 +258,34 @@ namespace aabb
             \param alwaysReinsert
                 Always reinsert the particle, even if it's within its old AABB (default: false)
          */
-        bool updateParticle(void*, const AdamLib::Vec2&, const AdamLib::Vec2&, bool alwaysReinsert=false);
+        bool updateParticle(AdamLib::CollisionNode*, bool alwaysReinsert=false);
 
         //! Query the tree to find candidate interactions for a particle.
-        /*! \param particle
-                The particle index.
+        /*! \param pointer
+                The particle pointer.
 
             \return particles
                 A vector of particle indices.
          */
-        std::vector<void*> query(void*);
+        std::vector<AdamLib::CollisionNode*> query(AdamLib::CollisionNode*);
 
         //! Query the tree to find candidate interactions for an AABB.
-        /*! \param particle
-                The particle index.
+        /*! \param pointer
+                The particle pointer.
 
             \param aabb
                 The AABB.
 
             \return particles
-                A vector of particle indices.
+                A vector of particle pointers.
          */
-        std::vector<void*> query(void*, const AABB&);
-
-        //! Query the tree to find candidate interactions for an AABB.
-        /*! \param aabb
-                The AABB.
-
-            \return particles
-                A vector of particle indices.
-         */
-        std::vector<void*> query(const AABB&);
+        std::vector<AdamLib::CollisionNode*> query(AdamLib::CollisionNode*, const AABB&);
 
         //! Get a particle AABB.
-        /*! \param particle
-                The particle index.
+        /*! \param pointer
+                The particle pointer.
          */
-        const AABB& getAABB(void*);
+        const AABB& getAABB(AdamLib::CollisionNode*);
 
         //! Get the height of the tree.
         /*! \return
@@ -374,7 +348,7 @@ namespace aabb
         AdamLib::Vec2 posMinImage;
 
         /// A map between particle and node indices.
-        std::unordered_map<void*, unsigned int> particleMap;
+        std::unordered_map<AdamLib::CollisionNode*, unsigned int> particleMap;
 
         //! Allocate a new node.
         /*! \return

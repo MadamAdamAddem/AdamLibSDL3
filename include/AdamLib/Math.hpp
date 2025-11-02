@@ -8,13 +8,20 @@ struct Vec2i;
 
 struct Vec2
 {
-  Vec2(double _x = 0, double _y = 0) : x(_x), y(_y) {}
+  Vec2(double _x, double _y);
+  Vec2() = default;
+  Vec2(const Vec2&) = default;
 
   double x;
   double y;
 
+  bool null = true;
+
   double magnitude() const;
-  static Vec2 normalize(const Vec2& vec);
+  Vec2& normalize();
+
+  Vec2 getNormalized();
+
 
   Vec2 operator+(const Vec2& _other) const;
   Vec2 operator+(const Vec2i& _other) const;
@@ -33,13 +40,19 @@ struct Vec2
 
 struct Vec2i
 {
-  Vec2i(int _x = 0, int _y = 0) : x(_x), y(_y) {}
+  Vec2i(int _x, int _y);
+  Vec2i() = default;
+  Vec2i(const Vec2i&) = default;
 
   int x;
   int y;
 
-  int magnitude() const;
-  static Vec2i normalize(const Vec2i& vec);
+  bool null = true;
+
+  double magnitude() const;
+  Vec2i& normalize();
+
+  Vec2i getNormalized();
 
   Vec2i operator+(const Vec2i& _other) const;
   Vec2i operator+(const Vec2& _other) const;

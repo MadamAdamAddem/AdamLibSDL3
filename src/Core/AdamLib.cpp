@@ -1,3 +1,4 @@
+#include "WindowInternal.hpp"
 #include <AdamLib/Core/AdamLib.hpp>
 #include <AdamLib/Core/Window.hpp>
 #include <SDL3/SDL.h>
@@ -29,7 +30,7 @@ void AdamLib::initialize()
   if(initialized) return;
 
   SDL_Init(SDL_INIT_VIDEO);
-  AdamLib::GameWindow::getInstance();
+  GameWindow::createWindow("AdamLib is dead! Long Live AdamLibSDL3 Port!");
 
   initialized = true;
 }

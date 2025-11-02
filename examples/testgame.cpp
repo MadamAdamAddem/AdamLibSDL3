@@ -1,4 +1,3 @@
-#include "AdamLib/Collision/CollisionShapes.hpp"
 #include <AdamLib/Nodes/Node.hpp>
 #include <AdamLib/Nodes/SpriteNode.hpp>
 #include <AdamLib/Nodes/CollisionNode.hpp>
@@ -43,28 +42,22 @@ struct Player : SpriteNodeInstanceController
     velocity.y = (Input::keystate(KEY_DOWN) - Input::keystate(KEY_UP));
     velocity.x = (Input::keystate(KEY_RIGHT) - Input::keystate(KEY_LEFT));
 
-    velocity = Vec2::normalize(velocity) * speed_;
+    velocity.normalize();
+    velocity *= speed_;
   }
   
 
 };
 
 SpriteNodeTemplate player_spr{"Player_Sprite", "assets/square144.png", SpriteController(Player)};
-CollisionNodeTemplate player_coll{"Player_Collision", Rectangle(Vec2(0,0), 144, 144)};
+CollisionNodeTemplate player_coll{"Player_Collision", CollisionCircle(Vec2(0,0), 100)};
 
 
 struct GlobalController : NodeInstanceController
 {
   void onReady() override
   {
-    RegisterKeyChangeConnection(KEY_0, createNewPlayer);
     RegisterKeyChangeConnection(KEY_P, printTree);
-  }
-
-  void createNewPlayer()
-  {
-    if(Input::keystate(KEY_0))
-      Node::getRoot().addChild(player_spr.createInstance());
   }
 
   void printTree()
@@ -88,6 +81,5 @@ void loadgame()
 
   roo.addChild(player_spr.createInstance());
   roo.addChild(global.createInstance());
-
 
 }

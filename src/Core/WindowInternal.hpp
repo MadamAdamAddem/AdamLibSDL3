@@ -1,27 +1,18 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_video.h>
+#include <string>
 
 namespace AdamLib
 {
 
 
-struct Window
+namespace GameWindow
 {
-  SDL_Window* window_;
 
-  ~Window()
-  {
-    SDL_DestroyWindow(window_);
-  }
 
-  Window(SDL_Window* _window) : window_(_window) {}
+  void createWindow(const std::string& _name = "AdamLib Lives On", int _w = 1280, int _h = 720);
 
-  inline operator SDL_Window*() const
-  {
-    return window_;
-  }
-
-};
-
+}
 
 }

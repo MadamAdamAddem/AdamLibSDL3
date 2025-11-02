@@ -24,6 +24,7 @@
   http://www.box2d.org
 */
 
+#include "AdamLib/Math.hpp"
 #include <AdamLib/Collision/AABB.hpp>
 #include <algorithm>
 #include <assert.h>
@@ -32,10 +33,8 @@
 namespace aabb
 {
 
-    AABB::AABB()
+    AABB::AABB() : surfaceArea(0), centre(0, 0)
     {
-        surfaceArea = 0;
-        centre = 0;
     }
 
     AABB::AABB(const AdamLib::Vec2& lowerBound_, const AdamLib::Vec2& upperBound_) :
@@ -203,7 +202,7 @@ namespace aabb
         nodeCount--;
     }
 
-    void Tree::insertParticle(void* particle, AdamLib::Vec2& position, double radius)
+    void Tree::insertParticle(AdamLib::CollisionNode* particle)
     {
         // Make sure the particle doesn't already exist.
         assert(particleMap.count(particle) == 0);
@@ -211,52 +210,8 @@ namespace aabb
 
         // Allocate a new node for the particle.
         unsigned int node = allocateNode();
-
-        // Size in both dimensions
-        double size[2];
-        
-        // Compute the AABB limits.
-        nodes[node].aabb.lowerBound.x = position.x - radius;
-        nodes[node].aabb.upperBound.x = position.x + radius;
-        size[0] = nodes[node].aabb.upperBound.x - nodes[node].aabb.lowerBound.x;
-
-        nodes[node].aabb.lowerBound.y = position.x + radius;
-        nodes[node].aabb.upperBound.y = position.x - radius;
-        size[1] = nodes[node].aabb.lowerBound.y - nodes[node].aabb.upperBound.y;
-        
-
-        // Fatten the AABB.
-
-        nodes[node].aabb.lowerBound.x -= skinThickness * size[0];
-        nodes[node].aabb.upperBound.y += skinThickness * size[0];
-
-        nodes[node].aabb.lowerBound.y += skinThickness * size[1];
-        nodes[node].aabb.upperBound.x -= skinThickness * size[1];
-        
-        nodes[node].aabb.surfaceArea = nodes[node].aabb.computeSurfaceArea();
-        nodes[node].aabb.centre = nodes[node].aabb.computeCentre();
-
-        // Zero the height.
-        nodes[node].height = 0;
-
-        // Insert a new leaf into the tree.
-        insertLeaf(node);
-
-        // Add the new particle to the map.
-        particleMap.insert(std::unordered_map<void*, unsigned int>::value_type(particle, node));
-
-        // Store the particle index.
-        nodes[node].particle = particle;
-    }
-
-    void Tree::insertParticle(void* particle, AdamLib::Vec2& lowerBound, AdamLib::Vec2& upperBound)
-    {
-        // Make sure the particle doesn't already exist.
-        assert(particleMap.count(particle) == 0);
-
-
-        // Allocate a new node for the particle.
-        unsigned int node = allocateNode();
+        const AdamLib::Vec2& upperBound = particle->aabb_.top_right_;
+        const AdamLib::Vec2& lowerBound = particle->aabb_.bottom_left_;
 
         // AABB size in each dimension.
         double size[2];
@@ -290,7 +245,7 @@ namespace aabb
         insertLeaf(node);
 
         // Add the new particle to the map.
-        particleMap.insert(std::unordered_map<void*, unsigned int>::value_type(particle, node));
+        particleMap.insert(std::unordered_map<AdamLib::CollisionNode*, unsigned int>::value_type(particle, node));
 
         // Store the particle index.
         nodes[node].particle = particle;
@@ -301,10 +256,10 @@ namespace aabb
         return particleMap.size();
     }
 
-    void Tree::removeParticle(void* particle)
+    void Tree::removeParticle(AdamLib::CollisionNode* particle)
     {
         // Map iterator.
-        std::unordered_map<void*, unsigned int>::iterator it;
+        std::unordered_map<AdamLib::CollisionNode*, unsigned int>::iterator it;
 
         // Find the particle.
         it = particleMap.find(particle);
@@ -328,7 +283,7 @@ namespace aabb
     void Tree::removeAll()
     {
         // Iterator pointing to the start of the particle map.
-        std::unordered_map<void*, unsigned int>::iterator it = particleMap.begin();
+        std::unordered_map<AdamLib::CollisionNode*, unsigned int>::iterator it = particleMap.begin();
 
         // Iterate over the map.
         while (it != particleMap.end())
@@ -349,30 +304,11 @@ namespace aabb
         particleMap.clear();
     }
 
-    bool Tree::updateParticle(void* particle, const AdamLib::Vec2& position, double radius,
-                              bool alwaysReinsert)
-    {
-        // AABB bounds vectors.
-        AdamLib::Vec2 lowerBound;
-        AdamLib::Vec2 upperBound;
 
-        // Compute the AABB limits.
-        lowerBound.x = position.x - radius;
-        upperBound.x = position.x + radius;
-
-        lowerBound.y = position.y + radius;
-        upperBound.y = position.y - radius;
-    
-
-        // Update the particle.
-        return updateParticle(particle, lowerBound, upperBound, alwaysReinsert);
-    }
-
-    bool Tree::updateParticle(void* particle, const AdamLib::Vec2& lowerBound,
-                              const AdamLib::Vec2& upperBound, bool alwaysReinsert)
+    bool Tree::updateParticle(AdamLib::CollisionNode* particle, bool alwaysReinsert)
     {
         // Map iterator.
-        std::unordered_map<void*, unsigned int>::iterator it;
+        std::unordered_map<AdamLib::CollisionNode*, unsigned int>::iterator it;
 
         // Find the particle.
         it = particleMap.find(particle);
@@ -388,6 +324,8 @@ namespace aabb
 
         // AABB size in each dimension.
         double size[2];
+        const AdamLib::Vec2& upperBound = particle->aabb_.top_right_;
+        const AdamLib::Vec2& lowerBound = particle->aabb_.bottom_left_;
 
         // Compute the AABB limits.
 
@@ -425,7 +363,7 @@ namespace aabb
         return true;
     }
 
-    std::vector<void*> Tree::query(void* particle)
+    std::vector<AdamLib::CollisionNode*> Tree::query(AdamLib::CollisionNode* particle)
     {
         // Make sure that this is a valid particle.
         assert(particleMap.count(particle) != 0);
@@ -434,13 +372,13 @@ namespace aabb
         return query(particle, nodes[particleMap[particle]].aabb);
     }
 
-    std::vector<void*> Tree::query(void* particle, const AABB& aabb)
+    std::vector<AdamLib::CollisionNode*> Tree::query(AdamLib::CollisionNode* particle, const AABB& aabb)
     {
         std::vector<unsigned int> stack;
         stack.reserve(256);
         stack.push_back(root);
 
-        std::vector<void*> particles;
+        std::vector<AdamLib::CollisionNode*> particles;
 
         while (stack.size() > 0)
         {
@@ -474,19 +412,8 @@ namespace aabb
         return particles;
     }
 
-    std::vector<void*> Tree::query(const AABB& aabb)
-    {
-        // Make sure the tree isn't empty.
-        if (particleMap.size() == 0)
-        {
-            return std::vector<void*>();
-        }
 
-        // Test overlap of AABB against all particles.
-        return query(nullptr, aabb);
-    }
-
-    const AABB& Tree::getAABB(void* particle)
+    const AABB& Tree::getAABB(AdamLib::CollisionNode* particle)
     {
         return nodes[particleMap[particle]].aabb;
     }

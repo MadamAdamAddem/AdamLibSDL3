@@ -23,7 +23,7 @@ namespace Renderer
   void removeSetPoints(SetOfPoints* _sop);
 
   //! Do not call, internal only
-  void initRenderer(SDL_Window* _window);
+  void initRenderer(SDL_Renderer* _window);
 
   SDL_Renderer* getRenderer();
 
