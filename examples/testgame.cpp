@@ -13,6 +13,8 @@
 
 using namespace AdamLib;
 
+CollisionDetector detector({1280, 720});
+
 
 struct Player : SpriteNodeInstanceController
 {
@@ -23,6 +25,8 @@ struct Player : SpriteNodeInstanceController
   void process(double _dT) override
   {
     self()->movePos(velocity * _dT);
+    detector.updateTree();
+    detector.queryTreeForCollisions();
   }
 
   void onReady() override
@@ -54,14 +58,15 @@ struct PlayerColl : CollisionNodeInstanceController
 {
   void onCollisionWith(CollisionNode *_collider)
   {
-    std::cout << "Collided with: " << _collider->getName() << std::endl;
+    static int i = 0;
+    std::cout << "Collided with: " << _collider->getName() << " " << ++i << std::endl;
   }
 };
 
 SpriteNodeTemplate player_spr{"Player_Sprite", "assets/square144.png", SpriteController(Player)};
 CollisionNodeTemplate player_coll{"Player_Collision", CollisionCircle(Vec2(0,0), 100), CollisionController(PlayerColl)};
 
-SpriteNodeTemplate box_spr{"Box_Sprite", "assets/gernamy.jpg"};
+SpriteNodeTemplate box_spr{"Box_Sprite", "assets/square144.png"};
 CollisionNodeTemplate box_coll{"Box_Collision", CollisionRectangle(Vec2(0,0), 144, 144)};
 
 struct GlobalController : NodeInstanceController
@@ -90,12 +95,19 @@ void loadgame()
   player_spr.registerChildTemplate(&player_coll);
   player_coll.renderCollision = true;
 
+  
   box_spr.default_pos_ = {500,500};
   box_spr.registerChildTemplate(&box_coll);
   box_coll.renderCollision = true;
+  
+  Node* player = player_spr.createInstance();
+  CollisionNode* pcoll = (CollisionNode*)player->getMyChild("Player_Collision");
+  Node* box = box_spr.createInstance();
+  CollisionNode* boxcoll = (CollisionNode*)box->getMyChild("Box_Collision");
 
-  roo.addChild(player_spr.createInstance());
-  //roo.addChild(global.createInstance());
-  //roo.addChild(box_spr.createInstance());
+  roo.addChild(player);
+  roo.addChild(box);
+  detector.addCollisionNode(pcoll);
+  detector.addCollisionNode(boxcoll);
 
 }

@@ -46,31 +46,31 @@ CollisionNode::CollisionNode(const std::string& _name, CollisionShape _shape, bo
     aabb_ = {{circ->center_.x - circ->r_, circ->center_.y + circ->r_}, {circ->center_.x + circ->r_, circ->center_.y - circ->r_}};
     points_to_render_->points_.resize(9);
     Vec2 center = circ->center_ + pos_;
-    float& radius = circ->r_; 
+    double& radius = circ->r_; 
 
     points_to_render_->points_[0].x = center.x;
     points_to_render_->points_[0].y = center.y + radius;
 
-    points_to_render_->points_[1].x = center.x - radius/2 - radius/4.3;
-    points_to_render_->points_[1].y = center.y + radius/2 + radius/4.3;
+    points_to_render_->points_[1].x = center.x - radius*0.71;
+    points_to_render_->points_[1].y = center.y + radius*0.71;
 
     points_to_render_->points_[2].x = center.x - radius;
     points_to_render_->points_[2].y = center.y;
     
-    points_to_render_->points_[3].x = center.x - radius/2 - radius/4.3;
-    points_to_render_->points_[3].y = center.y - radius/2 - radius/4.3;
+    points_to_render_->points_[3].x = center.x - radius*0.71;
+    points_to_render_->points_[3].y = center.y - radius*0.71;
 
     points_to_render_->points_[4].x = center.x;
     points_to_render_->points_[4].y = center.y - radius;
 
-    points_to_render_->points_[5].x = center.x + radius/2 + radius/4.3;
-    points_to_render_->points_[5].y = center.y - radius/2 - radius/4.3;
+    points_to_render_->points_[5].x = center.x + radius*0.71;
+    points_to_render_->points_[5].y = center.y - radius*0.71;
 
     points_to_render_->points_[6].x = center.x + radius;
     points_to_render_->points_[6].y = center.y;
 
-    points_to_render_->points_[7].x = center.x + radius/2 + radius/4.3;
-    points_to_render_->points_[7].y = center.y + radius/2 + radius/4.3;
+    points_to_render_->points_[7].x = center.x + radius*0.71;
+    points_to_render_->points_[7].y = center.y + radius*0.71;
 
     points_to_render_->points_[8] = points_to_render_->points_[0];
     

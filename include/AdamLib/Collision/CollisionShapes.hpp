@@ -33,35 +33,35 @@ struct CollisionRectangle
 
 struct CollisionCircle
 {
-  CollisionCircle(const Vec2& _center, const float _r);
+  CollisionCircle(const Vec2& _center, const double _r);
 
 
 
 
   Vec2 center_; //!<Center of circle, relative to parent
-  float r_; //!<Radius
+  double r_; //!<Radius
 };
 
 struct CollisionCapsule
 {
-  CollisionCapsule(const Vec2& _a_center, const Vec2& _b_center, const float _r);
+  CollisionCapsule(const Vec2& _a_center, const Vec2& _b_center, const double _r);
 
 
   Vec2 a_center_; //!<Circle a center, relative to parent
   Vec2 b_center_; //!<Circle b center, relative to parent
-  float r_; //!<Radius
+  double r_; //!<Radius
 };
 
 struct CollisionRay
 {
-  CollisionRay(const Vec2& _center, const Vec2& _direction_normalized, const float _len);
+  CollisionRay(const Vec2& _center, const Vec2& _direction_normalized, const double _len);
   
   Vec2 direction_normalized_; //!<The direction of the ray, with positive y pointing downwards
 
   Vec2 p1_; //!<Point 1 (Origin point of ray, relative to parent)
   Vec2 p2_; //!<Point 2 (Calculated with direction and length, relative to parent)
   
-  float len_; //!<Length/magnitude of direction
+  double len_; //!<Length/magnitude of direction
 };
 
 using CollisionShape = std::variant<CollisionRectangle, CollisionCircle, CollisionCapsule, CollisionRay>;
