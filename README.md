@@ -1,15 +1,16 @@
 # AdamLibSDL3
-##2D Cross-Platform Game Engine/Library
-AdamLib is a game engine written with the intention of allowing fast development using C++ itself as the main development language.
+## 2D Cross-Platform Game Engine/Library
+AdamLib is a game engine written with the intention of allowing fast development using 
+C++ itself as the main development language.
 An easy interface is provided allowing easy production of reuseable scenes.
 SDL3 serves as the only external dependancy, providing built-in cross-compatibility for most desktop, mobile, console, and web platforms.
 
-##Building
+## Building
 Clone the repo using: 
 >https://github.com/MadamAdamAddem/AdamLibSDL3
 
-###Windows
+### Windows
 
-###Linux
+### Linux
 
-###Mac-OS
+### Mac-OS
