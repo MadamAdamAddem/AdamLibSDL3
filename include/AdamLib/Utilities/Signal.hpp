@@ -26,6 +26,7 @@ struct ConnectionController
 {
   ConnectionController(SignalGeneric* _signal, uint32_t _connection_id);
   ConnectionController(ConnectionController&& _c);
+  ~ConnectionController();
 
   void operator=(ConnectionController&& _c);
 
@@ -54,8 +55,7 @@ private:
 
     Connecting to a signal will provide user with ConnectionController object, allowing them to disconnect at will.
     ConnectionController will also disconnect upon destruction.
-    It is user responsibility to ensure that the signal outlives all ConnectionControllers currently connected.
-    This may be accomplished either using static storage duration signals, or disconnec
+
 */
 template<typename... Arguments>
 class Signal final : public SignalGeneric

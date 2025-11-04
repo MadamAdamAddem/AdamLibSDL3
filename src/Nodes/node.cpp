@@ -348,10 +348,6 @@ Node* NodeTemplate::createNode(NodeInstanceController* _controller)
 //----NodeInstanceController:
 NodeInstanceController::~NodeInstanceController()
 {
-  for(auto& c : connections_)
-  {
-    c.disconnect();
-  }
 }
 
 void NodeInstanceController::registerConnection(ConnectionController&& _controller) 

@@ -42,6 +42,11 @@ ConnectionController::ConnectionController(ConnectionController&& _c) : signal_(
   _c.reset();
 }
 
+ConnectionController::~ConnectionController()
+{
+  disconnect();
+}
+
 void ConnectionController::operator=(ConnectionController&& _c)
 {
   disconnect();
