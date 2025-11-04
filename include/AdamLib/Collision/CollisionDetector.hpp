@@ -1,13 +1,13 @@
 #pragma once
 #include <AdamLib/Math.hpp>
-#include <AdamLib/Collision/AABB.hpp>
 #include <unordered_set>
+#include <memory>
 
 namespace AdamLib
 {
 
 class CollisionNode;
-
+class CollisionTree;
 //! A Broad-Phase Collision Detection Tree
 /*! 
     Contains a dynamic AABB Tree. 
@@ -18,7 +18,7 @@ class CollisionNode;
 class CollisionDetector
 {
   std::unordered_set<CollisionNode*> contained_nodes_;
-  aabb::Tree tree_;
+  std::unique_ptr<CollisionTree> tree_;
 
   bool determineCollisionBetween(CollisionNode*, CollisionNode*) const;
 

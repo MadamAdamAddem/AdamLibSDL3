@@ -1,8 +1,10 @@
-#include <AdamLib/Nodes/Node.hpp>
 #include <AdamLib/Nodes/SpriteNode.hpp>
+#include <AdamLib/Nodes/CollisionNode.hpp>
 #include <AdamLib/Input.hpp>
 
 using namespace AdamLib;
+
+Signal<> leftclick;
 
 
 struct Player : SpriteNodeInstanceController
@@ -21,8 +23,6 @@ struct Player : SpriteNodeInstanceController
     RegisterKeyChangeConnection(KEY_LEFT, doMovement);
     RegisterKeyChangeConnection(KEY_UP, doMovement);
     RegisterKeyChangeConnection(KEY_DOWN, doMovement);
-
-    RegisterKeyChangeConnection(KEY_P, grabEnemy);
   }
 
   void doMovement()
@@ -34,28 +34,12 @@ struct Player : SpriteNodeInstanceController
     velocity *= speed;
   }
 
-  void grabEnemy()
-  {
-    if(!Input::keystate(KEY_P))
-      return;
-
-    SpriteNode* enemy = (SpriteNode*)Node::getNode("/root/Enemy_Sprite");
-
-    static bool vis = false;
-    if(enemy != nullptr)
-    {
-      enemy->setVisibility(vis);
-      vis = !vis;
-    }
-
-  }
-
-
-
 };
 
 
 SpriteNodeTemplate player{"Player_Sprite", "assets/goated.jpg", SpriteController(Player)};
+CollisionNodeTemplate player_coll{"Player_Collision", CollisionRectangle(Vec2(0,0), 144, 144)};
+
 SpriteNodeTemplate enemy{"Enemy_Sprite", "assets/square144.png"};
 
 
@@ -88,12 +72,13 @@ void loadgame()
 
   Node& root = Node::getRoot();
 
+  player.registerChildTemplate(&player_coll);
   player.default_pos_ = {200,200};
+  player_coll.renderCollision = true;
 
   enemy.default_pos_ = {500,500};
 
 
-  root.addChild(global.createInstance());
   root.addChild(player.createInstance());
 
 }

@@ -24,8 +24,7 @@
   http://www.box2d.org
 */
 
-#include "AdamLib/Math.hpp"
-#include <AdamLib/Collision/AABB.hpp>
+#include "AABB.hpp"
 #include <algorithm>
 #include <assert.h>
 #include <limits>
@@ -210,8 +209,9 @@ namespace aabb
 
         // Allocate a new node for the particle.
         unsigned int node = allocateNode();
-        const AdamLib::Vec2& upperBound = particle->aabb_.top_right_;
-        const AdamLib::Vec2& lowerBound = particle->aabb_.bottom_left_;
+        const AdamLib::AABB& node_aabb = particle->getAABB();
+        const AdamLib::Vec2& upperBound = node_aabb.top_right_;
+        const AdamLib::Vec2& lowerBound = node_aabb.bottom_left_;
 
         // AABB size in each dimension.
         double size[2];
@@ -324,8 +324,9 @@ namespace aabb
 
         // AABB size in each dimension.
         double size[2];
-        const AdamLib::Vec2& upperBound = particle->aabb_.top_right_;
-        const AdamLib::Vec2& lowerBound = particle->aabb_.bottom_left_;
+        const AdamLib::AABB& node_aabb = particle->getAABB();
+        const AdamLib::Vec2& upperBound = node_aabb.top_right_;
+        const AdamLib::Vec2& lowerBound = node_aabb.bottom_left_;
 
         // Compute the AABB limits.
 

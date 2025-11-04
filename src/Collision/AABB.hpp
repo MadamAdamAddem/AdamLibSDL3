@@ -33,6 +33,7 @@
 #ifndef _AABB_H
 #define _AABB_H
 
+#include "AdamLib/Collision/CollisionDetector.hpp"
 #include <AdamLib/Nodes/CollisionNode.hpp>
 #include <AdamLib/Math.hpp>
 #include <vector>
@@ -406,6 +407,39 @@ namespace aabb
                 The index of the root node.
          */
         void validateMetrics(unsigned int) const;
+
+    };
+}
+
+namespace AdamLib
+{
+    struct CollisionTree
+    {
+        aabb::Tree internal_tree;
+        inline CollisionTree(const float _skinThickness, const Vec2& _dimensions) : internal_tree(_skinThickness, _dimensions)
+        {
+
+        }
+
+        inline void insertParticle(CollisionNode* _insert)
+        {
+            internal_tree.insertParticle(_insert);
+        }
+
+        inline void removeParticle(CollisionNode* _removal)
+        {
+            internal_tree.removeParticle(_removal);
+        }
+
+        inline std::vector<CollisionNode*> query(CollisionNode* _subject)
+        {
+            return internal_tree.query(_subject);
+        }
+
+        inline void updateParticle(CollisionNode* _updateee)
+        {
+            internal_tree.updateParticle(_updateee);
+        }
 
     };
 }

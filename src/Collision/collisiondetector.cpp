@@ -3,8 +3,10 @@
 #include <AdamLib/Nodes/CollisionNode.hpp>
 #include <AdamLib/Defines.hpp>
 
+#include "AABB.hpp"
 #include "cute_c2.hpp"
 #include <assert.h>
+#include <memory>
 
 using namespace AdamLib;
 
@@ -40,7 +42,7 @@ constexpr inline c2Capsule capsuleConversion(const CollisionCapsule* _capsule, c
 
 
 
-CollisionDetector::CollisionDetector(const Vec2& _dimensions) : tree_(SKIN_THICKNESS, _dimensions)
+CollisionDetector::CollisionDetector(const Vec2& _dimensions) : tree_(std::make_unique<CollisionTree>(SKIN_THICKNESS, _dimensions))
 {
   
 }
@@ -49,7 +51,7 @@ void CollisionDetector::addCollisionNode(CollisionNode* _addition)
 {
   if(contained_nodes_.insert(_addition).second == true)
   {
-    tree_.insertParticle(_addition);
+    tree_->insertParticle(_addition);
   }
 
 }
@@ -58,7 +60,7 @@ void CollisionDetector::removeCollisionNode(CollisionNode* _removal)
 {
   if(contained_nodes_.erase(_removal) == 1)
   {
-    tree_.removeParticle(_removal);
+    tree_->removeParticle(_removal);
   }
 }
 
@@ -66,7 +68,7 @@ void CollisionDetector::queryTreeForCollisions()
 {
   for(auto node : contained_nodes_)
   {
-    std::vector<CollisionNode*> colliders = tree_.query(node);
+    std::vector<CollisionNode*> colliders = tree_->query(node);
     for(CollisionNode* collider : colliders)
     {
       if(!determineCollisionBetween(node, collider))
@@ -168,5 +170,7 @@ void CollisionDetector::updateTree()
 
 void CollisionDetector::updateNodePosition(CollisionNode* _update)
 {
-  tree_.updateParticle(_update);
+  tree_->updateParticle(_update);
 }
+
+

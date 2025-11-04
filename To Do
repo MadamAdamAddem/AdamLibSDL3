@@ -1,4 +1,3 @@
-Use more smart pointers for cases where allocation and deallocation are manual.
 Privatize unneccesarrily exposed methods, members, and contructors. 
 Refactor root node to not be singleton.
 Add more nodes.

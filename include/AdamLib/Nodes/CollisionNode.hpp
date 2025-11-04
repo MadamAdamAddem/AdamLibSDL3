@@ -30,6 +30,12 @@ class CollisionNode : public Node
   friend class CollisionNodeTemplate;
   friend class CollisionDetector;
 
+  CollisionShape shape_;
+
+  std::unique_ptr<Renderer::SetOfPoints> points_to_render_;
+  AABB aabb_;
+  bool doRendering_;
+
   void updatePointsToRender();
 
 protected:
@@ -40,13 +46,9 @@ public:
   virtual ~CollisionNode();
 
   void setCollisionRendering(bool _renderCollision);
-
   virtual void movePos(const Vec2& _move) override;
-  CollisionShape shape_;
+  inline const AABB& getAABB() {return aabb_;}
 
-  std::unique_ptr<Renderer::SetOfPoints> points_to_render_;
-  AABB aabb_;
-  bool doRendering_;
 };
 
 
