@@ -20,28 +20,38 @@ Signal<> mouse_changed[7];
 bool Input::processEvents()
 {
   static SDL_Event e;
-  if(!SDL_PollEvent(&e))
-    return true;
-
-  if(e.type == SDL_EVENT_QUIT)
-    return false;
-
-  if(e.type == SDL_EVENT_MOUSE_MOTION)
-    mouse_changed[MOUSE_MOTION].emit();
-
-  if(e.type == SDL_EVENT_MOUSE_BUTTON_DOWN || e.type == SDL_EVENT_MOUSE_BUTTON_UP)
+  static SDL_Event* eptr = &e;
+  bool mouse_motion = false;
+  while(SDL_PollEvent(eptr))
   {
-    mouse_mask = SDL_GetMouseState(nullptr, nullptr);
-    mouse_changed[static_cast<int>(e.button.button)].emit();
+    switch(e.type)
+    {
+      case SDL_EVENT_QUIT:
+        return false;
+
+      case SDL_EVENT_MOUSE_MOTION:
+        mouse_motion = true;
+        break;
+
+      case SDL_EVENT_KEY_DOWN:
+      case SDL_EVENT_KEY_UP:
+        if(!e.key.repeat) key_changed[e.key.scancode].emit();
+        break;
+
+
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
+      case SDL_EVENT_MOUSE_BUTTON_UP:
+        mouse_mask = SDL_GetMouseState(NULL, NULL);
+        mouse_changed[static_cast<int>(e.button.button)].emit();
+        break;
+
+
+      
+    }
   }
     
-
-
-  
-  if((e.type == SDL_EVENT_KEY_DOWN || e.type == SDL_EVENT_KEY_UP) && !e.key.repeat)
-  {
-    key_changed[e.key.scancode].emit();
-  }
+  if(mouse_motion) //called outside of poll event loop to prevent high polling rate mice from spamming emissions
+    mouse_changed[MOUSE_MOTION].emit();
 
 
   return true;
@@ -49,7 +59,6 @@ bool Input::processEvents()
 
 
 //Function given will be called upon specified key change
-//Returns controller to disconnect. If not disconnected, then will cause problems.
 ConnectionController Input::connectKeyChange(Keys _key, std::function<void(void)> _func)
 {
   return key_changed[_key].connect(_func);

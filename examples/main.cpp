@@ -11,7 +11,7 @@ using namespace AdamLib;
 int main(int argc, char** argv)
 {
   initialize();
-  Node& roo = Node::getRoot();
+  Node& root = Node::getRoot();
 
   loadgame();
 
@@ -21,12 +21,12 @@ int main(int argc, char** argv)
   {
     limitFPS(60);
 
-    roo.process(0.0166666);
+    root.process(0.0166666);
     Node::freeQueued();
     Renderer::render_all();
   }
 
-  roo.immediatelyKillAllChildren();  
+  root.immediatelyKillAllChildren();  
 
   return 0;
 }

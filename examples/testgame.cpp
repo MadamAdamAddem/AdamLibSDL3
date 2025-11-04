@@ -1,113 +1,99 @@
-#include "AdamLib/Collision/CollisionShapes.hpp"
 #include <AdamLib/Nodes/Node.hpp>
 #include <AdamLib/Nodes/SpriteNode.hpp>
-#include <AdamLib/Nodes/CollisionNode.hpp>
-
-#include <AdamLib/Math.hpp>
 #include <AdamLib/Input.hpp>
 
-#include <AdamLib/Collision/CollisionDetector.hpp>
-
-#include <iostream>
-
-
 using namespace AdamLib;
-
-CollisionDetector detector({1280, 720});
 
 
 struct Player : SpriteNodeInstanceController
 {
+  double speed = 20;
   Vec2 velocity{0,0};
 
-  float speed_{500};
-
-  void process(double _dT) override
+  void process(double _dt) override
   {
-    self()->movePos(velocity * _dT);
-    detector.updateTree();
-    detector.queryTreeForCollisions();
+    self()->movePos(velocity);
   }
 
   void onReady() override
   {
-    RegisterKeyChangeConnection(KEY_UP,  onMovementInputChange);
-    RegisterKeyChangeConnection(KEY_LEFT, onMovementInputChange);
-    RegisterKeyChangeConnection(KEY_DOWN, onMovementInputChange);
-    RegisterKeyChangeConnection(KEY_RIGHT, onMovementInputChange);
-    RegisterKeyChangeConnection(KEY_LSHIFT, onMovementInputChange);
+    RegisterKeyChangeConnection(KEY_RIGHT, doMovement);
+    RegisterKeyChangeConnection(KEY_LEFT, doMovement);
+    RegisterKeyChangeConnection(KEY_UP, doMovement);
+    RegisterKeyChangeConnection(KEY_DOWN, doMovement);
+
+    RegisterKeyChangeConnection(KEY_P, grabEnemy);
   }
 
-  void onMovementInputChange()
+  void doMovement()
   {
-    if(Input::keystate(KEY_LSHIFT))
-      speed_ = 50;
-    else
-      speed_ = 500;
-
-    velocity.y = (Input::keystate(KEY_DOWN) - Input::keystate(KEY_UP));
-    velocity.x = (Input::keystate(KEY_RIGHT) - Input::keystate(KEY_LEFT));
+    velocity.x = Input::keystate(KEY_RIGHT) - Input::keystate(KEY_LEFT);
+    velocity.y = Input::keystate(KEY_DOWN) - Input::keystate(KEY_UP);
 
     velocity.normalize();
-    velocity *= speed_;
+    velocity *= speed;
   }
-  
-};
 
-struct PlayerColl : CollisionNodeInstanceController
-{
-  void onCollisionWith(CollisionNode *_collider)
+  void grabEnemy()
   {
-    static int i = 0;
-    std::cout << "Collided with: " << _collider->getName() << " " << ++i << std::endl;
+    if(!Input::keystate(KEY_P))
+      return;
+
+    SpriteNode* enemy = (SpriteNode*)Node::getNode("/root/Enemy_Sprite");
+
+    static bool vis = false;
+    if(enemy != nullptr)
+    {
+      enemy->setVisibility(vis);
+      vis = !vis;
+    }
+
   }
+
+
+
 };
 
-SpriteNodeTemplate player_spr{"Player_Sprite", "assets/square144.png", SpriteController(Player)};
-CollisionNodeTemplate player_coll{"Player_Collision", CollisionCircle(Vec2(0,0), 100), CollisionController(PlayerColl)};
 
-SpriteNodeTemplate box_spr{"Box_Sprite", "assets/square144.png"};
-CollisionNodeTemplate box_coll{"Box_Collision", CollisionRectangle(Vec2(0,0), 144, 144)};
+SpriteNodeTemplate player{"Player_Sprite", "assets/goated.jpg", SpriteController(Player)};
+SpriteNodeTemplate enemy{"Enemy_Sprite", "assets/square144.png"};
 
-struct GlobalController : NodeInstanceController
+
+struct Global : NodeInstanceController
 {
   void onReady() override
   {
-    RegisterKeyChangeConnection(KEY_P, printTree);
+    RegisterKeyChangeConnection(KEY_E, spawnEnemy);
   }
 
-  void printTree()
+  void spawnEnemy()
   {
-    if(Input::keystate(KEY_P))
-      Node::printTree();
+    if(Input::keystate(KEY_E))
+    {
+      Node& root = Node::getRoot();
+      SpriteNode* new_enemy = static_cast<SpriteNode*>(enemy.createInstance());
+      new_enemy->setPos({400, 400});
+      root.addChild(new_enemy);
+    }
   }
+
 
 };
+NodeTemplate global{"Global", NodeController(Global)};
+
+
 
 void loadgame()
 {
 
-  Node& roo = Node::getRoot();
+  Node& root = Node::getRoot();
 
-  NodeTemplate global{"Global", NodeController(GlobalController)};
+  player.default_pos_ = {200,200};
 
-  player_spr.default_pos_ = {300,300};
-  player_spr.registerChildTemplate(&player_coll);
-  player_coll.renderCollision = true;
+  enemy.default_pos_ = {500,500};
 
-  
-  box_spr.default_pos_ = {500,500};
-  box_spr.registerChildTemplate(&box_coll);
-  box_coll.renderCollision = true;
-  
-  Node* player = player_spr.createInstance();
-  CollisionNode* pcoll = (CollisionNode*)player->getMyChild("Player_Collision");
-  Node* box = box_spr.createInstance();
-  CollisionNode* boxcoll = (CollisionNode*)box->getMyChild("Box_Collision");
 
-  roo.addChild(player);
-  roo.addChild(box);
-  detector.addCollisionNode(pcoll);
-  detector.addCollisionNode(boxcoll);
+  root.addChild(global.createInstance());
+  root.addChild(player.createInstance());
 
 }
