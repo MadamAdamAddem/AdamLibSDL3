@@ -1,10 +1,10 @@
+#include <AdamLib/Collision/CollisionShapes.hpp>
+#include <AdamLib/Utilities/Math.hpp>
 #include <AdamLib/Nodes/SpriteNode.hpp>
 #include <AdamLib/Nodes/CollisionNode.hpp>
-#include <AdamLib/Input.hpp>
+#include <AdamLib/Core/Input.hpp>
 
 using namespace AdamLib;
-
-Signal<> leftclick;
 
 
 struct Player : SpriteNodeInstanceController
@@ -36,34 +36,8 @@ struct Player : SpriteNodeInstanceController
 
 };
 
-
-SpriteNodeTemplate player{"Player_Sprite", "assets/goated.jpg", SpriteController(Player)};
+SpriteNodeTemplate player_spr{"Player_Sprite", "assets/goated.jpg", SpriteController(Player)};
 CollisionNodeTemplate player_coll{"Player_Collision", CollisionRectangle(Vec2(0,0), 144, 144)};
-
-SpriteNodeTemplate enemy{"Enemy_Sprite", "assets/square144.png"};
-
-
-struct Global : NodeInstanceController
-{
-  void onReady() override
-  {
-    RegisterKeyChangeConnection(KEY_E, spawnEnemy);
-  }
-
-  void spawnEnemy()
-  {
-    if(Input::keystate(KEY_E))
-    {
-      Node& root = Node::getRoot();
-      SpriteNode* new_enemy = static_cast<SpriteNode*>(enemy.createInstance());
-      new_enemy->setPos({400, 400});
-      root.addChild(new_enemy);
-    }
-  }
-
-
-};
-NodeTemplate global{"Global", NodeController(Global)};
 
 
 
@@ -71,14 +45,11 @@ void loadgame()
 {
 
   Node& root = Node::getRoot();
+  player_spr.default_pos_ = {200,200};
+  player_spr.registerChildTemplate(&player_coll);
 
-  player.registerChildTemplate(&player_coll);
-  player.default_pos_ = {200,200};
   player_coll.renderCollision = true;
 
-  enemy.default_pos_ = {500,500};
-
-
-  root.addChild(player.createInstance());
+  root.addChild(player_spr.createInstance());
 
 }

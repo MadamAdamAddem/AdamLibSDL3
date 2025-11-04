@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include <AdamLib/Math.hpp>
-#include <AdamLib/Signal.hpp>
+#include <AdamLib/Utilities/Math.hpp>
+#include <AdamLib/Utilities/Signal.hpp>
 
 
 namespace AdamLib
@@ -31,7 +31,7 @@ class Node
   //! Child class, containing the child node and relevant connection controllers.
   struct Child
   {
-    Child(ConnectionController _process_connection, ConnectionController _move_pos_connection, Node* _child_node);
+    Child(ConnectionController&& _process_connection, ConnectionController&& _move_pos_connection, Node* _child_node);
     
     //these are defined/deleted to allow proper emplacement into node_map_. Copy is deleted because of unique ptr
     Child(const Child& _c) = delete;
@@ -49,7 +49,6 @@ class Node
 
   Node* parent_;
   Signal<double> propogate_process_;
-  Signal<Vec2> propogate_set_pos_;
   Signal<Vec2> propogate_move_pos_;
 
 protected:
@@ -164,6 +163,9 @@ public:
         Returns pointer to node at path, nullptr if not found.
   */  
   Node* getMyChild(const std::string& _local_path);
+
+
+  inline NodeInstanceController* getController() {return controller_.get();}
   
   //! Returns root singleton (Change)
   static Node& getRoot();
@@ -236,7 +238,7 @@ class NodeInstanceController
 
 protected:
 
-  void registerConnection(ConnectionController _connection);
+  void registerConnection(ConnectionController&& _connection);
 
   Node* self_;
   std::vector<ConnectionController> connections_;
@@ -248,13 +250,12 @@ protected:
 
 public:
   NodeInstanceController() = default;
-  ~NodeInstanceController();
+  virtual ~NodeInstanceController();
 
 };
 
 
-
-#define BMETHOD(Class, Method) std::bind(&Class::Method, this)
+#define RegisterCustomConnection(Signal, Method, ...) registerConnection(Signal.connect(std::bind(&std::remove_reference_t<decltype(*this)>::Method, this __VA_OPT__(,) __VA_ARGS__)))
 #define NodeController(Typename) [] () -> NodeInstanceController* {return static_cast<NodeInstanceController*>(new Typename());}
 
 

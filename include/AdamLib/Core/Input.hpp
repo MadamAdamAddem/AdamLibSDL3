@@ -1,7 +1,7 @@
 #pragma once
-#include <AdamLib/Signal.hpp>
+#include <AdamLib/Defines.hpp>
+#include <AdamLib/Utilities/Signal.hpp>
 #include <functional>
-
 
 namespace AdamLib
 {
@@ -132,7 +132,7 @@ namespace AdamLib
   };
  
 
-  enum MouseInput: int
+  enum MouseInputs: int
   {
     MOUSE_MOTION = 0,
     MOUSE_LCLICK,
@@ -149,25 +149,24 @@ namespace AdamLib
   {
     struct Mouse
     {
-      float x;
-      float y;
+      double x;
+      double y;
     };
+
 
 
     bool processEvents();
     ConnectionController connectKeyChange(Keys _key, std::function<void(void)>);
-    ConnectionController connectMouseChange(MouseInput _mouse_input, std::function<void(void)>);
+    ConnectionController connectMouseChange(MouseInputs _mouse_input, std::function<void(void)>);
+
 
     bool keystate(Keys _key);
-    bool mousestate(MouseInput _mouse_key);
+    bool mousestate(MouseInputs _mouse_key);
   }
 
-
-
-  #ifdef BMETHOD
+  #define BMETHOD(Class, Method) std::bind(&Class::Method, this)
   #define RegisterKeyChangeConnection(Key, Method) registerConnection(Input::connectKeyChange(Key, BMETHOD(std::remove_reference_t<decltype(*this)>, Method)))
   #define RegisterMouseChangeConnection(MouseInput, Method) registerConnection(Input::connectMouseChange(MouseInput, BMETHOD(std::remove_reference_t<decltype(*this)>, Method)))
-  #endif
 
 
 }

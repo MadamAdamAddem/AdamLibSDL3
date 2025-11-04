@@ -6,6 +6,7 @@ add_library(adam_lib SHARED
   Core/renderer.cpp
   Core/window.cpp
   Core/AdamLib.cpp
+  Core/inputs.cpp
 
   Nodes/node.cpp
   Nodes/spritenode.cpp
@@ -19,10 +20,8 @@ add_library(adam_lib SHARED
   Resources/manager.cpp
   Resources/textures.cpp
 
-
-
-  inputs.cpp
-  math.cpp
+  Utilities/math.cpp
+  Utilities/signal.cpp
 )
 
 target_include_directories(adam_lib

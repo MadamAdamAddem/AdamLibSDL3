@@ -14,3 +14,6 @@
 
 //CollisionTree AABB Thickness Modifier
 #define SKIN_THICKNESS 0.05
+
+//Maximum quantity of Signals allowed, stupid stupid stupid reason for this 
+#define MAXIMUM_SIGNALS 1024

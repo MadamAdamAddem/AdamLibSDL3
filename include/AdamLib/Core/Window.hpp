@@ -1,5 +1,5 @@
 #pragma once
-#include <AdamLib/Math.hpp>
+#include <AdamLib/Utilities/Math.hpp>
 #include <string>
 
 namespace AdamLib

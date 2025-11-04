@@ -53,6 +53,7 @@ struct SpriteNodeInstanceController : public NodeInstanceController
 {
   SpriteNodeInstanceController() = default;
   SpriteNode* self() override;
+  virtual ~SpriteNodeInstanceController() = default;
 };
 
 

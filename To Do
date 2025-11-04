@@ -1,5 +1,36 @@
-Privatize unneccesarrily exposed methods, members, and contructors. 
-Refactor root node to not be singleton.
-Add more nodes.
-Add multithreading.
-Add unique names for nodes. (Ex: %enemy as in godot)
+Nodes:
+  -Refactor root node to not be singleton.
+  -Establish definitive naming conventions.
+  -Add on-ready node initialization (Ex: Node* n_node = get_node_on_ready(...))
+  -Solve node being able to have (itself or parent) as indirect child
+  -Solve node being able to have (itself or child) as indirect parent
+  -Optimize node-path system
+  -Make functions relating to path/name more cohesive (move towards path instead of name)
+  -Add more nodes.
+  -Add unique names for nodes. (Ex: %enemy as in godot).
+
+
+  SpriteNode:
+    -Add better interfaces
+
+Core:
+
+
+Collision:
+  -Finish boolean collision for all types in CollisionDetector
+  -Implement GJK collision for all types in CollisionDetector
+  -Implement some sort of global detection system
+  -Only update tree when collision object has moved
+  -Add masking and layers like godot
+
+
+
+Resources:
+
+
+Utilities:
+
+
+General:
+  -Change to use non-standard library for performance.
+  -Add multithreading.

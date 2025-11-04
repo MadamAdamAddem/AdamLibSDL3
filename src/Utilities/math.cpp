@@ -1,4 +1,4 @@
-#include <AdamLib/Math.hpp>
+#include <AdamLib/Utilities/Math.hpp>
 #include <cmath>
 
 

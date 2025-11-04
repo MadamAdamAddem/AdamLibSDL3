@@ -21,20 +21,19 @@ Node::Node(const std::string& _name, NodeInstanceController* _controller, Node* 
 
 Node::~Node()
 {
-    
+  propogate_move_pos_.clear();
   propogate_process_.clear();
 }
 
 
 /*-----Child SubClass-----*/
-Node::Child::Child(ConnectionController _process_connection, ConnectionController _move_pos_connection, Node* _child_node) :
-  process_connection_(_process_connection), move_pos_connection_(_move_pos_connection), child_node_(_child_node) {}
+Node::Child::Child(ConnectionController&& _process_connection, ConnectionController&& _move_pos_connection, Node* _child_node) :
+  process_connection_(std::move(_process_connection)), move_pos_connection_(std::move(_move_pos_connection)), child_node_(_child_node) {}
 
 Node::Child::Child(Child&& _c) : 
-  process_connection_(_c.process_connection_), move_pos_connection_(_c.move_pos_connection_), child_node_(_c.child_node_.release()) 
+  process_connection_(std::move(_c.process_connection_)), move_pos_connection_(std::move(_c.move_pos_connection_)), child_node_(_c.child_node_.release()) 
 {
-  _c.process_connection_.reset();
-  _c.move_pos_connection_.reset();
+
 }
 
 Node::Child::~Child()
@@ -106,7 +105,7 @@ bool Node::addChild(Node* _node)
     std::bind(&Node::movePos, _node, std::placeholders::_1)
       );
   node_map_.emplace(
-    _node->name_, Child{pp, pmp, _node}
+    _node->name_, Child{std::move(pp), std::move(pmp), _node}
   );
 
   _node->updatePath();
@@ -355,9 +354,9 @@ NodeInstanceController::~NodeInstanceController()
   }
 }
 
-void NodeInstanceController::registerConnection(ConnectionController _controller) 
+void NodeInstanceController::registerConnection(ConnectionController&& _controller) 
 {
-  connections_.push_back(_controller);
+  connections_.emplace_back(std::move(_controller));
 }
 
 Node* NodeInstanceController::self() {return self_;}

@@ -1,6 +1,6 @@
 #include <AdamLib/Core/AdamLib.hpp>
 #include <AdamLib/Core/Rendering.hpp>
-#include <AdamLib/Input.hpp>
+#include <AdamLib/Core/Input.hpp>
 #include <AdamLib/Nodes/Node.hpp>
 
 #include "test.hpp"

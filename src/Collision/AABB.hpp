@@ -35,7 +35,7 @@
 
 #include "AdamLib/Collision/CollisionDetector.hpp"
 #include <AdamLib/Nodes/CollisionNode.hpp>
-#include <AdamLib/Math.hpp>
+#include <AdamLib/Utilities/Math.hpp>
 #include <vector>
 #include <unordered_map>
 

@@ -1,5 +1,5 @@
 #include "AdamLib/Collision/CollisionShapes.hpp"
-#include "AdamLib/Math.hpp"
+#include "AdamLib/Utilities/Math.hpp"
 #include <AdamLib/Defines.hpp>
 #include <AdamLib/Nodes/CollisionNode.hpp>
 

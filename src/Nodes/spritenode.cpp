@@ -69,5 +69,4 @@ Node* SpriteNodeTemplate::createNode(NodeInstanceController* _controller)
 
 
 
-
 SpriteNode* SpriteNodeInstanceController::self() {return static_cast<SpriteNode*>(self_);}

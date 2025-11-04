@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL3/SDL.h>
 #include <AdamLib/Defines.hpp>
-#include <AdamLib/Math.hpp>
+#include <AdamLib/Utilities/Math.hpp>
 #include <SDL3/SDL_rect.h>
 #include <vector>
 

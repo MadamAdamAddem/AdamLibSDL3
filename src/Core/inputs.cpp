@@ -1,5 +1,5 @@
-#include <AdamLib/Input.hpp>
-#include <AdamLib/Signal.hpp>
+#include <AdamLib/Core/Input.hpp>
+#include <AdamLib/Utilities/Signal.hpp>
 
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_keyboard.h>
@@ -11,8 +11,6 @@ using namespace AdamLib;
 const bool* input_mask = SDL_GetKeyboardState(NULL);
 uint32_t mouse_mask;
 Input::Mouse mouse;
-
-
 
 Signal<> key_changed[231];
 Signal<> mouse_changed[7];
@@ -50,7 +48,7 @@ bool Input::processEvents()
     }
   }
     
-  if(mouse_motion) //called outside of poll event loop to prevent high polling rate mice from spamming emissions
+  if(mouse_motion) //called outside of poll event loop to prevent high polling rate mice from spamming emissions (learned the hard way)
     mouse_changed[MOUSE_MOTION].emit();
 
 
@@ -64,7 +62,7 @@ ConnectionController Input::connectKeyChange(Keys _key, std::function<void(void)
   return key_changed[_key].connect(_func);
 }
 
-ConnectionController Input::connectMouseChange(MouseInput _mouse_input, std::function<void(void)> _func)
+ConnectionController Input::connectMouseChange(MouseInputs _mouse_input, std::function<void(void)> _func)
 {
   return mouse_changed[_mouse_input].connect(_func);
 }
@@ -75,7 +73,7 @@ bool Input::keystate(Keys _key)
   return input_mask[_key];
 }
 
-bool Input::mousestate(MouseInput _mouse_key)
+bool Input::mousestate(MouseInputs _mouse_key)
 {
   return mouse_mask & SDL_BUTTON_MASK(_mouse_key);
 }

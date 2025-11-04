@@ -1,7 +1,7 @@
 #pragma once
 
 #include <AdamLib/Defines.hpp>
-#include <AdamLib/Math.hpp>
+#include <AdamLib/Utilities/Math.hpp>
 #include <variant>
 
 namespace AdamLib
