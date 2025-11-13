@@ -15,14 +15,14 @@ namespace Renderer
 
   struct SetOfPoints
   {
-    std::vector<SDL_FPoint>points_;
+    std::vector<SDL_FPoint> points_;
   };
 
 
   void addSetPoints(SetOfPoints* _sop);
   void removeSetPoints(SetOfPoints* _sop);
 
-  //! Do not call, internal only
+  //! If called more than once it just kinda doesn't do anything
   void initRenderer(SDL_Renderer* _window);
 
   SDL_Renderer* getRenderer();

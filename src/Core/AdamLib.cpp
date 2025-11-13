@@ -1,6 +1,7 @@
 #include "WindowInternal.hpp"
 #include <AdamLib/Core/AdamLib.hpp>
 #include <AdamLib/Core/Window.hpp>
+#include <AdamLib/Nodes/Node.hpp>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
 
@@ -31,6 +32,5 @@ void AdamLib::initialize()
 
   SDL_Init(SDL_INIT_VIDEO);
   GameWindow::createWindow("AdamLib is dead! Long Live AdamLibSDL3 Port!");
-
   initialized = true;
 }

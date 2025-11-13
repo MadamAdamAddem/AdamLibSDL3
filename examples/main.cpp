@@ -3,30 +3,24 @@
 #include <AdamLib/Core/Input.hpp>
 #include <AdamLib/Nodes/Node.hpp>
 
-#include "test.hpp"
-
-
 using namespace AdamLib;
 
 int main(int argc, char** argv)
 {
-  initialize();
+  initialize();                 //Initialization
+  //Custom Load Game Function Here
   Node& root = Node::getRoot();
 
-  loadgame();
-
-
-  int i=0;
-  while(Input::processEvents())
+  while(Input::processEvents())   //Input Processing
   {
-    limitFPS(60);
+    limitFPS(60);            //FPS Limiting
 
-    root.process(0.0166666);
-    Node::freeQueued();
-    Renderer::render_all();
+    root.process(1.0/60);     //Node Processing
+    Node::freeQueued();           //Node Freeing
+    Renderer::render_all();       //Rendering
   }
 
-  root.immediatelyKillAllChildren();  
+  root.immediatelyKillAllChildren();//Finalization
 
   return 0;
 }
