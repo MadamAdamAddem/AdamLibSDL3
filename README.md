@@ -10,8 +10,11 @@ Clone the repo using:
 
 Build and compile using:
 >cd AdamLibSDL3
+
 >mkdir build && cd build
+
 >cmake .\.
+
 >make
 
 The shared library will be located within build/src, and an example binary will have compiled within build/examples.
