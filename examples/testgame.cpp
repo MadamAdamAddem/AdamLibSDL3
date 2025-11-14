@@ -1,4 +1,3 @@
-#include "AdamLib/Nodes/Node.hpp"
 #include <AdamLib/Collision/CollisionShapes.hpp>
 #include <AdamLib/Utilities/Math.hpp>
 #include <AdamLib/Nodes/SpriteNode.hpp>
@@ -7,24 +6,50 @@
 
 using namespace AdamLib;
 
-struct TestController : NodeInstanceController
+
+struct Player : SpriteNodeInstanceController
 {
-  void process(double _dT) override
+  double speed = 20;
+  Vec2 velocity{0,0};
+
+  void process(double _dt) override
   {
-    if(Input::keystate(KEY_P))
-      self()->setPos(Vec2(400,400));
+    self()->movePos(velocity);
   }
+
+  void onReady() override
+  {
+    RegisterKeyChangeConnection(KEY_RIGHT, doMovement);
+    RegisterKeyChangeConnection(KEY_LEFT, doMovement);
+    RegisterKeyChangeConnection(KEY_UP, doMovement);
+    RegisterKeyChangeConnection(KEY_DOWN, doMovement);
+  }
+
+  void doMovement()
+  {
+    velocity.x = Input::keystate(KEY_RIGHT) - Input::keystate(KEY_LEFT);
+    velocity.y = Input::keystate(KEY_DOWN) - Input::keystate(KEY_UP);
+
+    velocity.normalize();
+    velocity *= speed;
+  }
+
 };
 
-NodeTemplate testnode("Test_Node", NodeController(TestController));
-SpriteNodeTemplate childnode("Child_Node", "square144.png");
+SpriteNodeTemplate player_spr{"Player_Sprite", "assets/goated.jpg", SpriteController(Player)};
+CollisionNodeTemplate player_coll{"Player_Collision", CollisionRectangle(Vec2(0,0), 144, 144)};
+
+
 
 void loadgame()
 {
-  Node& root = Node::getRoot();
-  testnode.default_pos_ = {200,200};
-  testnode.registerChildTemplate(&childnode);
 
-  root.addChild(testnode.createInstance());
+  Node& root = Node::getRoot();
+  player_spr.default_pos_ = {200,200};
+  player_spr.registerChildTemplate(&player_coll);
+
+  player_coll.renderCollision = true;
+
+  root.addChild(player_spr.createInstance());
 
 }
