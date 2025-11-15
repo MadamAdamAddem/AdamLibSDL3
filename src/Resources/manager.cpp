@@ -1,5 +1,7 @@
-#include <AdamLib/Resources/ResManager.hpp>
 #include <AdamLib/Resources/Texture.hpp>
+#include "ResourcesInternal.hpp"
+#include "ResManager.hpp"
+
 #include <memory>
 #include <unordered_map>
 #include <assert.h>

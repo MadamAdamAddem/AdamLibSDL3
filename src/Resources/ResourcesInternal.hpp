@@ -1,15 +1,37 @@
 #pragma once
 #include <SDL3/SDL_render.h>
+#include <string>
 
 namespace AdamLib
 {
 
-  struct Texture
+  class Resource
   {
-    SDL_Texture* texture_;
-    ~Texture();
+  protected:
 
-    Texture(SDL_Texture* _texture);
+
+  public:
+    virtual void initializeResource(const std::string& path) = 0;
+    Resource() = default;
+    virtual ~Resource() = default;
+
+
+  };
+
+
+  class TextureResource : public Resource
+  {
+  public:
+
+    TextureResource();
+    ~TextureResource();
+
+    virtual void initializeResource(const std::string& _path) override;
+
+    inline SDL_Texture* getTexture() {return texture_;}
+
+    SDL_Texture* texture_;
+    
   };
 
 }

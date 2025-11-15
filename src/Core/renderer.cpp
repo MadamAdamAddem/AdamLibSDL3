@@ -47,7 +47,7 @@ void Renderer::render_all()
     if(obj->m_texture == nullptr)
       continue;
 
-    SDL_Texture* texture = obj->m_texture->getTexture()->texture_;
+    SDL_Texture* texture = obj->m_texture->getTexture();
     
 
     SDL_SetTextureColorMod(texture, obj->colormod_.x, obj->colormod_.y, obj->colormod_.w);

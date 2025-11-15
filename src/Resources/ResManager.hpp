@@ -1,9 +1,8 @@
 #pragma once
 
-#include <AdamLib/Resources/Resource.hpp>
 #include <memory>
 #include <string>
-
+#include "ResourcesInternal.hpp"
 
 namespace AdamLib
 {

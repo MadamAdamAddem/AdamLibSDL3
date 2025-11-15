@@ -1,6 +1,5 @@
 #pragma once
 #include <AdamLib/Utilities/Math.hpp>
-#include <AdamLib/Resources/Resource.hpp>
 
 
 #include <memory>
@@ -33,22 +32,7 @@ enum BlendMode
   BLEND_ADD_PREMULTIPLIED = 32u
 };
 
-class Texture;
-
-class TextureResource : public Resource
-{
-  Texture* texture_;
-public:
-
-  TextureResource();
-  ~TextureResource();
-
-  virtual void initializeResource(const std::string& _path) override;
-
-  inline Texture* getTexture() {return texture_;}
-
-
-};
+class TextureResource;
 
 struct TextureInstance
 {

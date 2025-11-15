@@ -2,7 +2,7 @@
 #include "ResourcesInternal.hpp"
 
 #include <AdamLib/Resources/Texture.hpp>
-#include <AdamLib/Resources/ResManager.hpp>
+#include "ResManager.hpp"
 #include <AdamLib/Core/Rendering.hpp>
 
 #include <SDL3_image/SDL_image.h>
@@ -13,20 +13,14 @@ using namespace AdamLib;
 
 
 
-TextureResource::TextureResource() : texture_(nullptr)
-{
+TextureResource::TextureResource() : texture_(nullptr) {}
 
-}
-
-TextureResource::~TextureResource()
-{
-  delete texture_;
-}
+TextureResource::~TextureResource() {SDL_DestroyTexture(texture_);}
 
 
 void TextureResource::initializeResource(const std::string& _path)
 {
-  texture_ = new Texture(IMG_LoadTexture(Renderer::getRenderer(), _path.c_str()));
+  texture_ = IMG_LoadTexture(Renderer::getRenderer(), _path.c_str());
 }
 
 /*---------------------------------------------------------------------------------------------------------------*/
@@ -35,10 +29,10 @@ void TextureResource::initializeResource(const std::string& _path)
 TextureInstance::TextureInstance(const std::string& _path, ScaleMode _scale_mode) :  
 m_texture(std::static_pointer_cast<TextureResource>(ResManager::requestResource(_path, ResManager::Texture)))
 {
-  SDL_SetTextureScaleMode(m_texture->getTexture()->texture_, static_cast<SDL_ScaleMode>(_scale_mode));
+  SDL_SetTextureScaleMode(m_texture->getTexture(), static_cast<SDL_ScaleMode>(_scale_mode));
 
   float w, h;
-  SDL_GetTextureSize(m_texture->getTexture()->texture_, &w, &h);
+  SDL_GetTextureSize(m_texture->getTexture(), &w, &h);
 
   image_clip_.w = w;
   image_clip_.h = h;
@@ -53,15 +47,12 @@ void TextureInstance::changeTexture(const std::string& _path, ScaleMode _scale_m
 {
   m_texture.reset();
   m_texture = std::static_pointer_cast<TextureResource>(ResManager::requestResource(_path, ResManager::Texture));
-  SDL_SetTextureScaleMode(m_texture->getTexture()->texture_, static_cast<SDL_ScaleMode>(_scale_mode));
+  SDL_SetTextureScaleMode(m_texture->getTexture(), static_cast<SDL_ScaleMode>(_scale_mode));
 
-  float w, h;
-  SDL_GetTextureSize(m_texture->getTexture()->texture_, &w, &h);
-
-  image_clip_.w = w;
-  image_clip_.h = h;
-  render_destination_.w = w;
-  render_destination_.h = h;
+  SDL_GetTextureSize(m_texture->getTexture(), &image_clip_.w, &image_clip_.h);
+  
+  render_destination_.w = image_clip_.w;
+  render_destination_.h = image_clip_.h;
 }
 
 void TextureInstance::removeFromRenderer()
@@ -100,10 +91,3 @@ void TextureInstance::setRenderCenter(Vec2 _center)
 }
 
 /*---------------------------------------------------------------------------------------------------------------*/
-
-Texture::~Texture()
-{
-  SDL_DestroyTexture(texture_);
-}
-
-Texture::Texture(SDL_Texture* _texture) : texture_(_texture) {}
