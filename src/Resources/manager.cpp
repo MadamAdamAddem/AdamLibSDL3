@@ -4,7 +4,7 @@
 
 #include <memory>
 #include <unordered_map>
-#include <assert.h>
+#include <cassert>
 
 using namespace AdamLib;
 

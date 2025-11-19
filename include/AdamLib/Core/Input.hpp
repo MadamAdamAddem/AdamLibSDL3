@@ -164,9 +164,8 @@ namespace AdamLib
     bool mousestate(MouseInputs _mouse_key);
   }
 
-  #define BMETHOD(Class, Method) std::bind(&Class::Method, this)
-  #define RegisterKeyChangeConnection(Key, Method) registerConnection(Input::connectKeyChange(Key, BMETHOD(std::remove_reference_t<decltype(*this)>, Method)))
-  #define RegisterMouseChangeConnection(MouseInput, Method) registerConnection(Input::connectMouseChange(MouseInput, BMETHOD(std::remove_reference_t<decltype(*this)>, Method)))
+  #define RegisterKeyChangeConnection(Key, Method) registerConnection(Input::connectKeyChange(Key, [this] (void) {Method();}))
+  #define RegisterMouseChangeConnection(MouseInput, Method) registerConnection(Input::connectMouseChange(MouseInput, [this] (void) {Method();}))
 
 
 }

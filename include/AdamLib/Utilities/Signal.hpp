@@ -109,4 +109,7 @@ public:
 
 };
 
+
+  #define RegisterCustomConnection(Signal, Method) registerConnection(Signal.connect([this](auto ...args){dodick(args...);}));
+
 }

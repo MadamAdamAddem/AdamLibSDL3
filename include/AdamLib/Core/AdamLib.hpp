@@ -7,5 +7,7 @@ namespace AdamLib
 
 
   void initialize();
+  void quit();
+  double update();
 
 }

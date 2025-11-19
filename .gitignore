@@ -1,5 +1,8 @@
+/.idea
 /.vscode
-/build
+/builds
+/builds/debug-build
+/builds/release-build
 /extern
 /.clangd
 /engine?.code-workspace

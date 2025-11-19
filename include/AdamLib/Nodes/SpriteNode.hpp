@@ -6,7 +6,7 @@ namespace AdamLib
 {
 
 class SpriteNodeTemplate;
-class SpriteNodeInstanceController;
+struct SpriteNodeInstanceController;
 
 //! Node derivative that contains a texture instance
 /*!
@@ -53,7 +53,7 @@ struct SpriteNodeInstanceController : public NodeInstanceController
 {
   SpriteNodeInstanceController() = default;
   SpriteNode* self() override;
-  virtual ~SpriteNodeInstanceController() = default;
+  virtual ~SpriteNodeInstanceController() override = default;
 };
 
 

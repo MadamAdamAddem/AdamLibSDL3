@@ -1,20 +1,32 @@
+#include <iostream>
+#include <ostream>
 #include <AdamLib/Collision/CollisionShapes.hpp>
 #include <AdamLib/Utilities/Math.hpp>
 #include <AdamLib/Nodes/SpriteNode.hpp>
 #include <AdamLib/Nodes/CollisionNode.hpp>
+#include <AdamLib/Collision/CollisionDetector.hpp>
 #include <AdamLib/Core/Input.hpp>
 
 using namespace AdamLib;
 
+CollisionDetector detector({1280, 720});
 
 struct Player : SpriteNodeInstanceController
 {
-  double speed = 20;
+  double speed = 500;
   Vec2 velocity{0,0};
+  Signal<double, int> dick;
+
+  void dodick(double d, int p)
+  {
+    static bool vis = false;
+    self()->setVisibility(vis);
+    vis = !vis;
+  }
 
   void process(double _dt) override
   {
-    self()->movePos(velocity);
+    self()->movePos(velocity * _dt);
   }
 
   void onReady() override
@@ -23,6 +35,14 @@ struct Player : SpriteNodeInstanceController
     RegisterKeyChangeConnection(KEY_LEFT, doMovement);
     RegisterKeyChangeConnection(KEY_UP, doMovement);
     RegisterKeyChangeConnection(KEY_DOWN, doMovement);
+    RegisterKeyChangeConnection(KEY_Q, dosig);
+    RegisterCustomConnection(dick, dodick);
+
+  }
+
+  void dosig()
+  {
+    dick.emit(2, 3);
   }
 
   void doMovement()
@@ -50,6 +70,9 @@ void loadgame()
 
   player_coll.renderCollision = true;
 
-  root.addChild(player_spr.createInstance());
 
+
+  root.addChild(player_spr.createInstance());
+  CollisionNode* n = (CollisionNode*)root.getMyChild("Player_Sprite/Player_Collision");
+  detector.addCollisionNode(n);
 }

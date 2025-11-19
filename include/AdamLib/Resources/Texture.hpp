@@ -38,9 +38,9 @@ struct TextureInstance
 {
   std::shared_ptr<TextureResource> m_texture;
 
-  unsigned layer_;
+  unsigned layer_{1};
 
-  bool hidden_;
+  bool hidden_{false};
 
   Vec4f image_clip_{0,0,0,0};
   Vec4f render_destination_{0,0,0,0};
@@ -56,8 +56,8 @@ struct TextureInstance
 
   void changeTexture(const std::string& _path, ScaleMode _scale_mode = NEAREST);
   void changeLayer(unsigned _layer);
-  void setScale(Vec2 _scale);
-  void setRenderCenter(Vec2 _center);
+  void setScale(const Vec2& _scale);
+  void setRenderCenter(const Vec2& _center);
 
   /* Implement
   void setBlendMode(BlendMode);
@@ -71,7 +71,7 @@ struct TextureInstance
   void addToRenderer();
 
   TextureInstance() = default;
-  TextureInstance(const std::string& _path, ScaleMode _scale_mode = NEAREST);
+  explicit TextureInstance(const std::string& _path, ScaleMode _scale_mode = NEAREST);
 
   ~TextureInstance();
 

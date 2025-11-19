@@ -1,12 +1,10 @@
-#include "AdamLib/Collision/CollisionShapes.hpp"
-#include "AdamLib/Utilities/Math.hpp"
-#include <AdamLib/Defines.hpp>
+#include <AdamLib/Collision/CollisionShapes.hpp>
+#include <AdamLib/Utilities/Math.hpp>
 #include <AdamLib/Nodes/CollisionNode.hpp>
 
-#include "../Collision/cute_c2.hpp"
 #include "../Core/RendererInternal.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <memory>
 
 
@@ -14,10 +12,10 @@ using namespace AdamLib;
 
 
 
-CollisionNode::CollisionNode(const std::string& _name, CollisionShape _shape, bool _doRendering, NodeInstanceController* _controller,  Node* _parent) : 
+CollisionNode::CollisionNode(const std::string& _name, const CollisionShape& _shape, bool _doRendering, NodeInstanceController* _controller,  Node* _parent) :
   Node(_name, _controller, _parent), shape_(_shape), doRendering_(_doRendering), points_to_render_(std::make_unique<Renderer::SetOfPoints>())
 {
-  if(CollisionRectangle* rect = std::get_if<CollisionRectangle>(&shape_))
+  if(const CollisionRectangle* rect = std::get_if<CollisionRectangle>(&shape_))
   {
     Vec2 bleft = {rect->center_.x - rect->width_height_.x/2, rect->center_.y + rect->width_height_.y/2};
     Vec2 tright = {rect->center_.x + rect->width_height_.x/2, rect->center_.y - rect->width_height_.y/2};
@@ -41,12 +39,12 @@ CollisionNode::CollisionNode(const std::string& _name, CollisionShape _shape, bo
 
     points_to_render_->points_[4] = points_to_render_->points_[0];
   }
-  else if(CollisionCircle* circ = std::get_if<CollisionCircle>(&shape_))
+  else if(const CollisionCircle* circ = std::get_if<CollisionCircle>(&shape_))
   {
     aabb_ = {{circ->center_.x - circ->r_, circ->center_.y + circ->r_}, {circ->center_.x + circ->r_, circ->center_.y - circ->r_}};
     points_to_render_->points_.resize(9);
-    Vec2 center = circ->center_ + pos_;
-    double& radius = circ->r_; 
+    const Vec2 center = circ->center_ + pos_;
+    const double& radius = circ->r_;
 
     points_to_render_->points_[0].x = center.x;
     points_to_render_->points_[0].y = center.y + radius;
@@ -75,7 +73,7 @@ CollisionNode::CollisionNode(const std::string& _name, CollisionShape _shape, bo
     points_to_render_->points_[8] = points_to_render_->points_[0];
     
   }
-  else if(CollisionCapsule* caps = std::get_if<CollisionCapsule>(&shape_))
+  else if(const CollisionCapsule* caps = std::get_if<CollisionCapsule>(&shape_))
   {
     double rightmost = std::max(caps->a_center_.x, caps->b_center_.x) + caps->r_;
     double leftmost = std::min(caps->a_center_.x, caps->b_center_.x) - caps->r_;
@@ -88,14 +86,14 @@ CollisionNode::CollisionNode(const std::string& _name, CollisionShape _shape, bo
 
     points_to_render_->points_.resize(11);
   }
-  else if(CollisionRay* ray = std::get_if<CollisionRay>(&shape_))
+  else if(const CollisionRay* ray = std::get_if<CollisionRay>(&shape_))
   {
-    double leftmost = std::min(ray->p1_.x, ray->p2_.x);
-    double rightmost = std::max(ray->p1_.x, ray->p2_.x);
+    const double leftmost = std::min(ray->p1_.x, ray->p2_.x);
+    const double rightmost = std::max(ray->p1_.x, ray->p2_.x);
 
     //increased y is lower height, origin is top left
-    double upmost = std::min(ray->p1_.y, ray->p2_.y);
-    double downmost = std::max(ray->p1_.y, ray->p2_.y);
+    const double upmost = std::min(ray->p1_.y, ray->p2_.y);
+    const double downmost = std::max(ray->p1_.y, ray->p2_.y);
 
     Vec2 bleft = {leftmost, downmost};
     Vec2 tright = {rightmost, upmost};
@@ -125,7 +123,7 @@ CollisionNode::~CollisionNode()
 }
 
 
-void CollisionNode::setCollisionRendering(bool _renderCollision)
+void CollisionNode::setCollisionRendering(const bool _renderCollision)
 {
   if(doRendering_ && !_renderCollision)
     Renderer::addSetPoints(points_to_render_.get());
@@ -141,32 +139,17 @@ void CollisionNode::movePos(const Vec2& _move)
   aabb_.bottom_left_ += _move;
   aabb_.top_right_ += _move;
 
-  for(auto& point : points_to_render_->points_)
+  for(auto& [px, py] : points_to_render_->points_)
   {
-    point.x += _move.x;
-    point.y += _move.y;
+    px += _move.x;
+    py += _move.y;
   }
 }
 
 
 /*----- CollisionNodeTemplate -----*/
 
-CollisionNodeTemplate::CollisionNodeTemplate(const std::string& _name, CollisionShape _shape, std::function<CollisionNodeInstanceController*()> _controller_factory) : 
-NodeTemplate(_name, _controller_factory), shape_(_shape)
-{}
+CollisionNodeTemplate::CollisionNodeTemplate(const std::string& _name, const CollisionShape& _shape, const std::function<CollisionNodeInstanceController*()>& _controller_factory) :
+NodeTemplate(_name, _controller_factory), shape_(_shape) {}
 
-Node* CollisionNodeTemplate::createNode(NodeInstanceController* _controller)
-{
-  CollisionNode* n = new CollisionNode(default_name_, shape_, renderCollision, _controller);
-  return n;
-}
 /*----- CollisionTemplate -----*/
-
-/*----- CollisionNodeInstanceController -----*/
-
-CollisionNode* CollisionNodeInstanceController::self() {return static_cast<CollisionNode*>(self_);}
-
-void CollisionNodeInstanceController::onCollisionWith(CollisionNode* _collider) {}
-
-
-/*----- CollisionNodeInstanceController -----*/

@@ -1,6 +1,5 @@
 #include <AdamLib/Nodes/Node.hpp>
 #include <AdamLib/Defines.hpp>
-#include <cstddef>
 #include <unordered_set>
 #include <iostream>
 
@@ -11,8 +10,8 @@ using namespace AdamLib;
 std::unordered_set<std::string> to_be_freed;
 
 
-Node::Node(const std::string& _name, NodeInstanceController* _controller, Node* _parent) :
-  name_(_name), controller_(_controller), parent_(_parent)
+Node::Node(std::string _name, NodeInstanceController* _controller, Node* _parent) :
+  parent_(_parent), controller_(_controller), name_(std::move(_name))
 {
   if(controller_)
     controller_->self_ = this;
@@ -21,8 +20,8 @@ Node::Node(const std::string& _name, NodeInstanceController* _controller, Node* 
 
 Node::~Node()
 {
-  propogate_move_pos_.clear();
-  propogate_process_.clear();
+  propagate_move_pos_.clear();
+  propagate_process_.clear();
 }
 
 
@@ -30,7 +29,7 @@ Node::~Node()
 Node::Child::Child(ConnectionController&& _process_connection, ConnectionController&& _move_pos_connection, Node* _child_node) :
   process_connection_(std::move(_process_connection)), move_pos_connection_(std::move(_move_pos_connection)), child_node_(_child_node) {}
 
-Node::Child::Child(Child&& _c) : 
+Node::Child::Child(Child&& _c) noexcept :
   process_connection_(std::move(_c.process_connection_)), move_pos_connection_(std::move(_c.move_pos_connection_)), child_node_(_c.child_node_.release()) 
 {
 
@@ -49,7 +48,7 @@ void Node::process(double _dT)
   if(controller_)
     controller_->process(_dT);
 
-  propogate_process_.emit(_dT);
+  propagate_process_.emit(_dT);
 
 }
 
@@ -63,15 +62,15 @@ void Node::updatePath()
   else
     global_path_ = parent_->global_path_ + "/" + name_;
 
-  for(auto& c : node_map_)
+  for(const auto& [name, child] : node_map_)
   {
-    c.second.child_node_->updatePath();
+    child.child_node_->updatePath();
   }
 }
 
 bool Node::followsNameConventions(const std::string &_name)
 {
-  if(_name.find('/') == _name.npos)
+  if(_name.find('/') == std::string::npos)
     return true;
 
   
@@ -97,16 +96,17 @@ bool Node::addChild(Node* _node)
 
   _node->parent_ = this;
 
-  auto pp = propogate_process_.connect(
-    std::bind(&Node::process, _node, std::placeholders::_1)
-      );
+  auto pp = propagate_process_.connect(
+    [=] (const double _arg) {_node->process(_arg);}
+    );
 
-  auto pmp = propogate_move_pos_.connect(
-    std::bind(&Node::movePos, _node, std::placeholders::_1)
-      );
+  auto pmp = propagate_move_pos_.connect(
+  [=] (const Vec2& _arg) {_node->movePos(_arg);}
+    );
+
   node_map_.emplace(
     _node->name_, Child{std::move(pp), std::move(pmp), _node}
-  );
+    );
 
   _node->updatePath();
   return true;
@@ -118,15 +118,14 @@ Node* Node::getMyChild(const std::string& _local_path)
     return this;
 
 
-  size_t pos = _local_path.find('/');
+  const size_t pos = _local_path.find('/');
   size_t i = (pos == std::string::npos) ? _local_path.size() : pos;
-  std::string first = _local_path.substr(0, i++);
+  const std::string first = _local_path.substr(0, i++);
 
   if(i > _local_path.size())
     i = _local_path.size();
 
-  auto it = node_map_.find(first);
-  if(it != node_map_.end())
+  if(const auto it = node_map_.find(first); it != node_map_.end())
     return it->second.child_node_->getMyChild(_local_path.substr(i));
   else
     return nullptr;
@@ -136,7 +135,7 @@ Node* Node::getMyChild(const std::string& _local_path)
 
 Node* Node::disconnectChild(const std::string& _child_name)
 {
-  auto it = node_map_.find(_child_name);
+  const auto it = node_map_.find(_child_name);
   if(it == node_map_.end())
     return nullptr;
 
@@ -179,7 +178,7 @@ bool Node::moveToBeChildOf(Node* _parent)
   return _parent->addChild(this);
 }
 
-void Node::printChildren(int _depth)
+void Node::printChildren(int _depth) const
 {
   std::cout << "\n";
   if(node_map_.empty())
@@ -187,13 +186,13 @@ void Node::printChildren(int _depth)
 
 
 
-  for(auto& kid : node_map_)
+  for(auto& [name, child] : node_map_)
   {
     for(int i=0; i<_depth; ++i)
       std::cout << "   ";
     
-    std::cout << kid.first << "/";
-    kid.second.child_node_->printChildren(_depth + 1);
+    std::cout << name << "/";
+    child.child_node_->printChildren(_depth + 1);
   }
 
 }
@@ -211,15 +210,10 @@ void Node::setPos(const Vec2& _pos)
 void Node::movePos(const Vec2& _move) 
 {
   pos_ += _move;
-  propogate_move_pos_.emit(_move);
+  propagate_move_pos_.emit(_move);
 }
 
-Vec2 Node::getPos() 
-{
-  return pos_;
-}
-
-std::string Node::posAsString()
+std::string Node::posAsString() const
 {
   return std::string("(" + std::to_string(pos_.x) + "," + std::to_string(pos_.y) + ")");
 }
@@ -236,7 +230,7 @@ Node& Node::getRoot()
 
 Node* Node::getNode(const std::string& _global_path)
 {
-  std::string path = _global_path.substr(6);
+  const std::string path = _global_path.substr(6);
   return getRoot().getMyChild(path);
 }
 
@@ -249,7 +243,7 @@ void Node::printTree()
 
 }
 
-void Node::queueFree(Node* tbd) 
+void Node::queueFree(Node* tbd)
 {
   if(tbd)
     to_be_freed.insert(tbd->global_path_);
@@ -262,8 +256,7 @@ void Node::freeQueued()
   //probably should be optimized
   for (auto& n : to_be_freed) 
   {
-    Node* tmp = Node::getNode(n);
-    if(tmp)
+    if(const Node* tmp = Node::getNode(n))
     {
       if(tmp->controller_)
         tmp->controller_->onFree();
@@ -273,8 +266,7 @@ void Node::freeQueued()
 
   for (auto& n : to_be_freed) 
   {
-    Node* tmp = Node::getNode(n);
-    if(tmp)
+    if(const Node* tmp = Node::getNode(n))
     {
       tmp->parent_->immediatelyObliterateMyChild(tmp->name_);
     }
@@ -290,12 +282,8 @@ void Node::freeQueued()
 
 //-----NodeTemplate:
 
-NodeTemplate::NodeTemplate(const std::string& _default_name, std::function<NodeInstanceController*()> _controllerfact) :
-  default_name_(_default_name), controller_factory_(_controllerfact)
-{
-  
-}
-
+NodeTemplate::NodeTemplate(std::string _default_name, std::function<NodeInstanceController*()> _controller_factory) :
+controller_factory_(std::move(_controller_factory)), default_name_(std::move(_default_name)) {}
 
 bool NodeTemplate::registerChildTemplate(NodeTemplate* _child)
 {
@@ -321,7 +309,6 @@ bool NodeTemplate::registerChildTemplate(NodeTemplate* _child)
   return true;
 }
 
-
 Node* NodeTemplate::createInstance()
 {
   Node* self = createNode((controller_factory_ ? controller_factory_() : nullptr));
@@ -338,25 +325,15 @@ Node* NodeTemplate::createInstance()
   return self;
 }
 
-Node* NodeTemplate::createNode(NodeInstanceController* _controller)
-{
-  return new Node(default_name_, _controller);
-}
-
 
 
 //----NodeInstanceController:
-NodeInstanceController::~NodeInstanceController()
-{
-}
-
 void NodeInstanceController::registerConnection(ConnectionController&& _controller) 
 {
   connections_.emplace_back(std::move(_controller));
 }
 
 Node* NodeInstanceController::self() {return self_;}
-
 
 void NodeInstanceController::process(double _dT) {}
 

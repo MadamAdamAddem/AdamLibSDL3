@@ -15,15 +15,15 @@ class CollisionTree;
 
     All Collision Nodes entering the tree must at some time remove themselves from the tree.
 */
-class CollisionDetector
+class CollisionDetector final
 {
   std::unordered_set<CollisionNode*> contained_nodes_;
   std::unique_ptr<CollisionTree> tree_;
 
   bool determineCollisionBetween(CollisionNode*, CollisionNode*) const;
-
 public:
   explicit CollisionDetector(const Vec2& _dimensions);
+  ~CollisionDetector();
 
 //! Add collision node to detection tree
 /*! \param _addition

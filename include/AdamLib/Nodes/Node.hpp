@@ -21,8 +21,8 @@ class NodeTemplate;
     Not to be directly derived from unless intending to make a new node-type.
     To create an instance of a Node, create NodeTemplate object and create instance from there.
 
-    Holds ownership of child nodes, and propogates signals to them.
-    Propogation is top down, meaning parent node handles calls then emits signals for child to handle.
+    Holds ownership of child nodes, and propagates signals to them.
+    Propagation is top down, meaning parent node handles calls then emits signals for child to handle.
 */
 class Node
 {
@@ -36,7 +36,7 @@ class Node
     //these are defined/deleted to allow proper emplacement into node_map_. Copy is deleted because of unique ptr
     Child(const Child& _c) = delete;
     Child& operator=(const Child& _c) = delete;
-    Child(Child&& _c);
+    Child(Child&& _c) noexcept;
     ~Child();
     
     ConnectionController process_connection_;
@@ -48,14 +48,14 @@ class Node
   std::unordered_map<std::string, Child> node_map_; //!<Maps node name to Child object
 
   Node* parent_;
-  Signal<double> propogate_process_;
-  Signal<Vec2> propogate_move_pos_;
+  Signal<double> propagate_process_;
+  Signal<Vec2> propagate_move_pos_;
 
 protected:
 
   std::unique_ptr<NodeInstanceController> controller_; //!<Optional controller
 
-  Node(const std::string& _name, NodeInstanceController* _controller = nullptr, Node* parent = nullptr);
+  explicit Node(std::string _name, NodeInstanceController* _controller = nullptr, Node* _parent = nullptr);
 
   Vec2 pos_{0,0};
 
@@ -117,7 +117,7 @@ public:
       \return
         True on success, false on failure.
         Failure occurs if _parent is equal to current parent, is nullptr, or for any addChild failure reason.
-        If this function fails because it could not be added as a child to _parent, it will be owned by nothing and outside of the scene tree.
+        If this function fails because it could not be added as a child to _parent, it will be owned by nothing and is outside the scene tree.
   */  
   bool moveToBeChildOf(Node* _parent);
   
@@ -126,7 +126,7 @@ public:
       \param _depth
         This parameter exists for recursion purposes and should be ignored. Sets initial print width.
   */  
-  void printChildren(int _depth = 0);
+  void printChildren(int _depth = 0) const;
 
 
   //! Updates this node's path variable to match reality
@@ -147,11 +147,11 @@ public:
   virtual void movePos(const Vec2& _move);
 
   //! Get global position
-  Vec2 getPos();
+  inline Vec2 getPos() const {return pos_;}
 
   //! Get global position as string
-  std::string posAsString();
-  inline const std::string_view getName() {return name_;}
+  std::string posAsString() const;
+  inline std::string_view getName() const {return name_;}
   
 
   //! Gets child located at _local_path
@@ -165,7 +165,7 @@ public:
   Node* getMyChild(const std::string& _local_path);
 
 
-  inline NodeInstanceController* getController() {return controller_.get();}
+  inline NodeInstanceController* getController() const {return controller_.get();}
   
   //! Returns root singleton (Change)
   static Node& getRoot();
@@ -200,7 +200,7 @@ public:
   */
   static void queueFree(Node* _to_be_deleted);
 
-  //! Frees queue'd nodes before next loop start
+  //! Frees queued nodes before next loop start
   static void freeQueued();
 
 
@@ -212,11 +212,14 @@ class NodeTemplate
   std::vector<NodeTemplate*> children_;
   std::function<NodeInstanceController*()> controller_factory_;
 protected:
-  virtual Node* createNode(NodeInstanceController* _controller);
+  inline virtual Node* createNode(NodeInstanceController* _controller)
+  {
+    return new Node(default_name_, _controller);
+  }
 
 public:
-  NodeTemplate(const std::string& _default_name, std::function<NodeInstanceController*()> _controller_factory = nullptr);
-  ~NodeTemplate() = default;
+  explicit NodeTemplate(std::string _default_name, std::function<NodeInstanceController*()> _controller_factory = nullptr);
+  virtual ~NodeTemplate() = default;
 
   std::string default_name_;
   Vec2 default_pos_{0,0};
@@ -235,14 +238,14 @@ class NodeInstanceController
 {
   friend class Node;
   friend class NodeTemplate;
+  std::vector<ConnectionController> connections_;
 
 protected:
 
-  void registerConnection(ConnectionController&& _connection);
+  void registerConnection(ConnectionController&& _controller);
 
-  Node* self_;
-  std::vector<ConnectionController> connections_;
-  
+  Node* self_ = nullptr;
+
   virtual void process(double _dT);
   virtual void onReady();
   virtual void onFree();
@@ -250,13 +253,12 @@ protected:
 
 public:
   NodeInstanceController() = default;
-  virtual ~NodeInstanceController();
+  virtual ~NodeInstanceController() = default;
 
 };
 
 
-#define RegisterCustomConnection(Signal, Method, ...) registerConnection(Signal.connect(std::bind(&std::remove_reference_t<decltype(*this)>::Method, this __VA_OPT__(,) __VA_ARGS__)))
-#define NodeController(Typename) [] () -> NodeInstanceController* {return static_cast<NodeInstanceController*>(new Typename());}
+#define NodeController(Typename) ([] () -> NodeInstanceController* {return static_cast<NodeInstanceController*>(new Typename());})
 
 
 

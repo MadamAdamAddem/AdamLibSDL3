@@ -17,7 +17,6 @@ TextureResource::TextureResource() : texture_(nullptr) {}
 
 TextureResource::~TextureResource() {SDL_DestroyTexture(texture_);}
 
-
 void TextureResource::initializeResource(const std::string& _path)
 {
   texture_ = IMG_LoadTexture(Renderer::getRenderer(), _path.c_str());
@@ -72,7 +71,7 @@ void TextureInstance::changeLayer(unsigned _layer)
   addToRenderer();
 }
 
-void TextureInstance::setScale(Vec2 _scale)
+void TextureInstance::setScale(const Vec2& _scale)
 {
   render_destination_.w = image_clip_.w * _scale.x;
   render_destination_.h = image_clip_.h * _scale.y;
@@ -84,7 +83,7 @@ TextureInstance::~TextureInstance()
   m_texture.reset();
 }
 
-void TextureInstance::setRenderCenter(Vec2 _center)
+void TextureInstance::setRenderCenter(const Vec2& _center)
 {
   render_destination_.x = _center.x - render_destination_.w/2;
   render_destination_.y = _center.y - render_destination_.h/2;

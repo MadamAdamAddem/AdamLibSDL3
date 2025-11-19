@@ -24,7 +24,7 @@ namespace AdamLib
   public:
 
     TextureResource();
-    ~TextureResource();
+    virtual ~TextureResource() override;
 
     virtual void initializeResource(const std::string& _path) override;
 
